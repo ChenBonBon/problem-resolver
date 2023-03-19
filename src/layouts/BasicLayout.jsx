@@ -4,7 +4,7 @@ import Header from "../components/layout/Header";
 
 export default function BasicLayout() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-screen h-screen">
       <Header />
       <Content />
       <Footer />

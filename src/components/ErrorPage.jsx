@@ -1,26 +1,21 @@
 import { useNavigate } from "react-router-dom";
-import Button from "./Button";
+import Button from "../components/Button";
 
-export default function ErrorPage(props) {
+export default function ErrorPage({ code = "404", description = "" }) {
   const navigate = useNavigate();
 
   return (
-    <main className="grid min-h-full place-items-center bg-white py-24 px-6 sm:py-32 lg:px-8">
-      <div className="text-center">
+    <div className="hero bg-base-200 h-full">
+      <div className="hero-content flex-col lg:flex-row-reverse">
         <img
           src="/error.png"
           alt="error"
-          className="w-24 rounded-full inline-block"
+          className="max-w-xs shadow-2xl rounded-full"
         />
-        <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-          {props.code}
-        </h1>
-        <p className="mt-6 text-base leading-7 text-gray-600">
-          {props.description}
-        </p>
-        <div className="mt-10 flex items-center justify-center gap-x-6">
+        <div>
+          <h1 className="text-5xl font-bold">{code}</h1>
+          <p className="py-6">{description}</p>
           <Button
-            block
             onClick={() => {
               navigate("/");
             }}
@@ -29,6 +24,6 @@ export default function ErrorPage(props) {
           </Button>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
