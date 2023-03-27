@@ -22,7 +22,7 @@ router.use(
     secret,
     cookie: "token",
     debug: true,
-  }).unless({ path: [/^\/user/] })
+  }).unless({ path: [/^\/users/] })
 );
 router.use("/problems", problemRoutes.routes());
 router.use("/users", userRoutes.routes());
