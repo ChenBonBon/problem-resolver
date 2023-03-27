@@ -40,5 +40,5 @@ app.use(bodyParser());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-app.listen(3000);
-console.log("Server is running on 3000");
+app.listen(3001);
+console.log("Server is running on 3001");
