@@ -29,7 +29,8 @@ export async function request(url, options) {
         message.error(json.message);
         return null;
       } else {
-        window.history.pushState(null, "", "/login");
+        localStorage.removeItem("token");
+        window.history.replaceState(null, "", "/login");
       }
     }
 

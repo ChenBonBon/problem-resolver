@@ -36,14 +36,14 @@ router.post("/", async (ctx) => {
   const body = ctx.request.body;
   const { title, description, answer, difficulty, status } = body;
   const token = resolveAuthorizationHeader(ctx);
-  const userId = jsonwebtoken.decode(token);
+  const user = jsonwebtoken.decode(token);
   const problem = new ProblemModel({
     title,
     description,
     answer,
     difficulty,
     status,
-    createUserId: userId,
+    createUserId: user.id,
   });
 
   try {

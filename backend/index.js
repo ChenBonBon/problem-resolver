@@ -17,6 +17,19 @@ app.on("error", (err, ctx) => {
   console.error("server error", err, ctx);
 });
 
+app.use(async function (ctx, next) {
+  try {
+    return await next();
+  } catch (err) {
+    if (401 == err.status) {
+      ctx.status = 401;
+      ctx.body = { message: "Token验证失败" };
+    } else {
+      throw err;
+    }
+  }
+});
+
 router.use(
   jwt({
     secret,
