@@ -35,6 +35,10 @@ const Content = styled(AntLayout.Content)`
   height: calc(100% - 64px - 48px);
 `;
 
+const Footer = styled(AntLayout.Footer)`
+  text-align: center;
+`;
+
 export default function GuestLayout() {
   return (
     <Layout>
@@ -46,6 +50,11 @@ export default function GuestLayout() {
       <Content>
         <Login />
       </Content>
+      <Footer>
+        <link href="https://beian.miit.gov.cn/" target="_blank">
+          苏ICP备17066944号-1
+        </link>
+      </Footer>
     </Layout>
   );
 }
