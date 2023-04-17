@@ -51,9 +51,9 @@ export default function GuestLayout() {
         <Login />
       </Content>
       <Footer>
-        <link href="https://beian.miit.gov.cn/" target="_blank">
+        <a href="https://beian.miit.gov.cn/" target="_blank">
           苏ICP备17066944号-1
-        </link>
+        </a>
       </Footer>
     </Layout>
   );
