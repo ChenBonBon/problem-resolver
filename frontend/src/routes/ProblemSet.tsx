@@ -1,4 +1,4 @@
-import { Badge, Button, Space, Table } from "antd";
+import { Badge, Button, Space, Table, TableProps } from "antd";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ControlBar from "../components/ControlBar";
@@ -55,7 +55,7 @@ const columns = [
       );
     },
   },
-];
+] as TableProps<any>["columns"];
 
 async function fetchProblems() {
   const res = await request("/api/problems");

@@ -1,10 +1,15 @@
-import { Button, Form as AntForm, Input, Select, Space, Switch } from "antd";
+import { Form as AntForm, Button, Input, Select, Space, Switch } from "antd";
 import { useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Difficulties } from "../constants";
+
+interface IProblemForm {
+  data?: any;
+  onFinish: (values: any) => void;
+}
 
 const Form = styled(AntForm)`
   margin: 24px 20%;
@@ -14,7 +19,7 @@ const Editor = styled(ReactQuill)`
   background-color: white;
 `;
 
-export default function ProblemForm({ data = {}, onFinish }) {
+export default function ProblemForm({ data = {}, onFinish }: IProblemForm) {
   const navigate = useNavigate();
   const [form] = Form.useForm();
 

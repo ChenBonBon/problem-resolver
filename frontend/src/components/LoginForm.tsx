@@ -9,14 +9,14 @@ const ButtonWrapper = styled("div")`
   text-align: right;
 `;
 
-async function register(values) {
+async function register(values: any) {
   return await request("/api/users/register", {
     method: "POST",
     body: JSON.stringify(values),
   });
 }
 
-async function login(values) {
+async function login(values: any) {
   return await request("/api/users/login", {
     method: "POST",
     body: JSON.stringify(values),
@@ -26,9 +26,9 @@ async function login(values) {
 export default function LoginForm() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const [value, toggle] = useToggle(true);
+  const { value, toggle } = useToggle(true);
 
-  async function onFinish(values) {
+  async function onFinish(values: any) {
     if (value) {
       const res = await login(values);
 

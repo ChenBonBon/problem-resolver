@@ -1,19 +1,22 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { HeightFull } from "../constants";
+import logo from "../assets/logo.svg";
+import Icon from "./Icon";
 
 const StyledLogo = styled(Link)`
-  ${HeightFull}
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;
 
-const StyleImg = styled("img")`
-  ${HeightFull}
+const StyleImg = styled(Icon)`
+  display: inline-flex;
 `;
 
 export default function Logo() {
   return (
     <StyledLogo to="/">
-      <StyleImg src="/logo.svg" alt="logo" />
+      <StyleImg svg={logo} />
     </StyledLogo>
   );
 }

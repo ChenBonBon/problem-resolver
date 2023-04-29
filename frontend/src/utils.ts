@@ -1,13 +1,17 @@
 import { message } from "antd";
 
-export function findTargetValueInArray(array, key, value, target) {
+export function findTargetValueInArray(
+  array: any[],
+  key: string,
+  value: any,
+  target: string
+) {
   const result = array.find((item) => item[key] === value);
 
   return result?.[target];
 }
 
-export async function request(url, options) {
-  const token = localStorage.getItem("token");
+export async function request(url: string, options?: RequestInit) {
   try {
     const requestOptions = {
       ...options,
@@ -15,10 +19,6 @@ export async function request(url, options) {
         "Content-Type": "application/json",
       },
     };
-
-    if (token) {
-      requestOptions.headers.Authorization = `Bearer ${token}`;
-    }
 
     const res = await fetch(url, requestOptions);
 

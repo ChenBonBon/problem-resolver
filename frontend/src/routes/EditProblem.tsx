@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import ProblemForm from "../components/ProblemForm";
 import { request } from "../utils";
 
-async function fetchProblem(id) {
+async function fetchProblem(id: string) {
   const res = await request(`/api/problems/${id}`);
 
   return res ?? {};
@@ -15,7 +15,7 @@ export default function EditProblem() {
   const [data, setData] = useState({});
   const { id } = params;
 
-  async function updateProblem(values) {
+  async function updateProblem(values: any) {
     const res = await request(`/api/problems/${id}`, {
       method: "PUT",
       body: JSON.stringify(values),
@@ -28,8 +28,10 @@ export default function EditProblem() {
 
   useEffect(() => {
     async function fetchData() {
-      const res = await fetchProblem(id);
-      setData(res ?? {});
+      if (id) {
+        const res = await fetchProblem(id);
+        setData(res ?? {});
+      }
     }
 
     fetchData();

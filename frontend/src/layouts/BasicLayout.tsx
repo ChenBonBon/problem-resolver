@@ -1,14 +1,12 @@
 import { UserOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Layout as AntLayout, Menu as AntMenu } from "antd";
+import { Layout as AntLayout, Menu as AntMenu, Button, Dropdown } from "antd";
 import { useEffect, useState } from "react";
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Logo from "../components/Logo";
 import { HeightFull } from "../constants";
 import useAuth from "../hooks/useAuth";
 import menus from "../menus";
-import routes from "../routes";
-import NotFound from "../routes/NotFound";
 
 const Layout = styled(AntLayout)`
   ${HeightFull}
@@ -20,7 +18,9 @@ const Header = styled(AntLayout.Header)`
   position: sticky;
   top: 0;
   background-color: white;
-  padding: 0 8px;
+  padding: 0 16px;
+  box-shadow: 0 0 0 1px #eeeeee;
+  z-index: 99999;
 `;
 
 const HeaderStart = styled("div")`
@@ -35,6 +35,7 @@ const HeaderCenter = styled(HeaderStart)`
 
 const Menu = styled(AntMenu)`
   flex: auto;
+  border: none;
 `;
 
 const HeaderEnd = styled(HeaderStart)`
@@ -43,27 +44,17 @@ const HeaderEnd = styled(HeaderStart)`
 
 const Content = styled(AntLayout.Content)`
   height: calc(100% - 64px - 48px);
+  background-color: #ffffff;
 `;
 
 const Footer = styled(AntLayout.Footer)`
   text-align: center;
+  background-color: #ffffff;
 `;
 
 const UserIcon = styled(UserOutlined)`
   cursor: pointer;
 `;
-
-function getHrefFromSelectedKey(selectedKey) {
-  const selectedMenu = menus.find((menu) => menu.key === selectedKey);
-
-  return selectedMenu?.href;
-}
-
-function getKeyFromCurrentPathname(pathname) {
-  const currentMenu = menus.find((menu) => menu.href === pathname);
-
-  return currentMenu?.key;
-}
 
 export default function BasicLayout() {
   const navigate = useNavigate();
@@ -82,13 +73,8 @@ export default function BasicLayout() {
     },
   ];
 
-  const handleClick = (event) => {
-    setSelectedKey(event.key);
-    navigate(getHrefFromSelectedKey(event.key));
-  };
-
   useEffect(() => {
-    setSelectedKey(getKeyFromCurrentPathname(location.pathname));
+    setSelectedKey(location.pathname.substring(1));
   }, [location.pathname]);
 
   return (
@@ -99,7 +85,10 @@ export default function BasicLayout() {
         </HeaderStart>
         <HeaderCenter>
           <Menu
-            onClick={handleClick}
+            onClick={({ key }) => {
+              setSelectedKey(key);
+              navigate(`/${key}`);
+            }}
             selectedKeys={[selectedKey]}
             mode="horizontal"
             items={menus}
@@ -116,12 +105,7 @@ export default function BasicLayout() {
         </HeaderEnd>
       </Header>
       <Content>
-        <Routes>
-          {routes.map((route) => (
-            <Route key={route.key} path={route.path} element={route.element} />
-          ))}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Outlet />
       </Content>
       <Footer>
         <a href="https://beian.miit.gov.cn/" target="_blank">
