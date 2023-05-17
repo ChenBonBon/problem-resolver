@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block content %}
+<p>尊敬的 {{email}}，您好：</p>
+<p>欢迎来到<b>小镇做题家</b>，请点击以下链接完成注册。</p>
+<br />
+<br />
+<p class="tips">
+  注意：验证码有效期24小时。如非本人操作请忽略。（工作人员不会向你索取此验证码，请勿泄漏！)
+</p>
+<br />
+<br />
+<hr />
+<br />
+<br />
+<p class="tips">此为系统邮件，请勿回复</p>
+<p class="tips">请保管好您的邮箱，避免账号被他人盗用</p>
+{% endblock content %} {% block footer %}{{ year }}{% endblock footer %}

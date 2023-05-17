@@ -2,7 +2,7 @@ import { message } from "antd";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ProblemForm from "../components/ProblemForm";
-import { request } from "../utils";
+import request from "../request";
 
 async function fetchProblem(id: string) {
   const res = await request(`/api/problems/${id}`);
@@ -16,10 +16,11 @@ export default function EditProblem() {
   const { id } = params;
 
   async function updateProblem(values: any) {
-    const res = await request(`/api/problems/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(values),
-    });
+    const res = await request(
+      `/api/problems/${id}`,
+      "PUT",
+      JSON.stringify(values)
+    );
 
     if (res) {
       message.success("问题更新成功");

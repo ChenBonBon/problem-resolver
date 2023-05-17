@@ -1,12 +1,9 @@
 import { message } from "antd";
 import ProblemForm from "../components/ProblemForm";
-import { request } from "../utils";
+import request from "../request";
 
 async function createProblem(values: any) {
-  const res = await request("/api/problems", {
-    method: "POST",
-    body: JSON.stringify(values),
-  });
+  const res = await request("/api/problems", "POST", JSON.stringify(values));
 
   if (res) {
     message.success("创建问题成功");

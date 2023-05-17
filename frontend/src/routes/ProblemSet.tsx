@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ControlBar from "../components/ControlBar";
 import { Difficulties } from "../constants";
-import { findTargetValueInArray, request } from "../utils";
+import request from "../request";
+import { findTargetValueInArray } from "../utils";
 
 const columns = [
   {

@@ -1,6 +1,7 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Layout as AntLayout, Menu as AntMenu, Button, Dropdown } from "antd";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Logo from "../components/Logo";
@@ -20,7 +21,6 @@ const Header = styled(AntLayout.Header)`
   background-color: white;
   padding: 0 16px;
   box-shadow: 0 0 0 1px #eeeeee;
-  z-index: 99999;
 `;
 
 const HeaderStart = styled("div")`
@@ -59,10 +59,25 @@ const UserIcon = styled(UserOutlined)`
 export default function BasicLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const auth = useAuth();
   const [selectedKey, setSelectedKey] = useState("");
 
   const items = [
+    {
+      key: "problem-type",
+      label: "问题分类管理",
+      onClick: () => {
+        navigate("/admin/problem-type");
+      },
+    },
+    {
+      key: "problem",
+      label: "问题管理",
+      onClick: () => {
+        navigate("/admin/problem");
+      },
+    },
     {
       key: "logout",
       label: "登出",
@@ -72,6 +87,10 @@ export default function BasicLayout() {
       },
     },
   ];
+
+  useEffect(() => {
+    dispatch.user.getUser();
+  }, []);
 
   useEffect(() => {
     setSelectedKey(location.pathname.substring(1));
@@ -100,7 +119,14 @@ export default function BasicLayout() {
               <UserIcon />
             </Dropdown>
           ) : (
-            <Button type="primary">登陆 / 注册</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                navigate("/login");
+              }}
+            >
+              登陆 / 注册
+            </Button>
           )}
         </HeaderEnd>
       </Header>
