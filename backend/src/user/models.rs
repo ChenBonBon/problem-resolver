@@ -14,3 +14,12 @@ pub struct User {
     pub last_login_at: DateTime,
     pub created_at: DateTime,
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct Verication {
+    pub code: String,
+    pub email: String,
+    pub created_at: DateTime,
+    pub expired_at: DateTime,
+    pub verified: bool,
+}

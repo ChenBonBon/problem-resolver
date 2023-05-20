@@ -13,3 +13,6 @@ failure = "0.1.5"
 mongodb = "2.0.0"
 lettre = "0.10"
 tera = "1"
+rand = "0.8.5"
+chrono = "0.4.24"
+bson = { version = "2.6.1", features = ["chrono-0_4"] }

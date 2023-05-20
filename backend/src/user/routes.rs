@@ -1,17 +1,17 @@
-const DB_NAME: &str = "problem-resolver";
-const COLL_NAME: &str = "users";
-
 pub mod routes {
     use actix_web::{get, post, web};
-    use serde::Deserialize;
+    use chrono::{Duration, Utc};
+    use mongodb::Client;
+    use serde::{Deserialize, Serialize};
     use tera::{Context, Tera};
 
     use crate::{
-        common::common::{Resp, RespResult},
+        common::common::{generate_code, Resp, RespResult, DB_NAME, VERIFICATION_COLLECTION, REGISTER_TEMPLATE},
         mail::mail::send_mail,
+        user::models::Verication,
     };
 
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Serialize)]
     struct RegisterData {
         email: String,
     }
@@ -41,7 +41,7 @@ pub mod routes {
     }
 
     #[post("/register")]
-    async fn register(data: web::Json<RegisterData>) -> RespResult {
+    async fn register(client: web::Data<Client>, data: web::Json<RegisterData>) -> RespResult {
         let tera = match Tera::new("templates/**/*.html") {
             Ok(t) => t,
             Err(e) => {
@@ -51,16 +51,42 @@ pub mod routes {
         };
 
         let mut context = Context::new();
-        context.insert("email", &data.email.to_string());
-        context.insert("year", &2023);
-        let html = tera.render("user/register.html", &context);
-        let mail_body = html.unwrap();
+        let email = &data.email;
+        let code = generate_code(6);
 
-        send_mail(
-            data.email.to_string(),
-            "欢迎注册小镇做题家".to_string(),
-            mail_body,
-        );
+        context.insert("email", &email.to_string());
+        context.insert("year", &2023);
+        context.insert("code", &code);
+
+        let collection = client
+            .database(DB_NAME)
+            .collection(VERIFICATION_COLLECTION);
+        let now = Utc::now();
+        let expired_time = now
+            .checked_add_signed(Duration::days(1))
+            .expect("Calculate expired_time error");
+        let verication = Verication {
+            code,
+            email: email.to_string(),
+            created_at: bson::DateTime::from_chrono(now),
+            expired_at: bson::DateTime::from_chrono(expired_time),
+            verified: false,
+        };
+        let result = collection.insert_one(verication, None).await;
+        let html = tera.render(REGISTER_TEMPLATE, &context).expect(&format!("Render template {} error", REGISTER_TEMPLATE));
+        let mail_body = html;
+
+        match result {
+            Ok(_) => send_mail(
+                email.to_string(),
+                "欢迎注册小镇做题家".to_string(),
+                mail_body,
+            ),
+            Err(err) => {
+                println!("Insert into problem-resolver verification error(s): {}", err);
+                ::std::process::exit(1);
+            },
+        }
 
         Resp::ok({}).to_json_result()
     }

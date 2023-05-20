@@ -1,6 +1,7 @@
 pub mod common {
     use actix_web::{error, HttpResponse};
     use failure::Fail;
+    use rand::Rng;
     use serde::{Deserialize, Serialize};
 
     #[derive(Fail, Debug)]
@@ -61,4 +62,19 @@ pub mod common {
     }
 
     pub type RespResult = Result<HttpResponse, BusinessError>;
+
+    pub fn generate_code(len: u8) -> String {
+        let mut rng = rand::thread_rng();
+        let mut code = "".to_string();
+
+        for _i in 1..=len {
+            code = format!("{}{}", code, rng.gen_range(0..10))
+        }
+
+        return code;
+    }
+
+    pub const DB_NAME: &str = "problem-resolver";
+    pub const VERIFICATION_COLLECTION: &str = "verification";
+    pub const REGISTER_TEMPLATE: &str = "user/register.html";
 }
