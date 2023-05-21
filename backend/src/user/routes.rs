@@ -20,6 +20,7 @@ pub mod routes {
     struct RegisterData {
         email: String,
         code: String,
+        password: String,
     }
 
     #[derive(Deserialize, Serialize)]
@@ -134,6 +135,7 @@ pub mod routes {
     async fn register(client: web::Data<Client>, data: web::Json<RegisterData>) -> RespResult {
         let email = &data.email;
         let code = &data.code;
+        let password = &data.password;
 
         let verification_collection: Collection<Verification> =
             client.database(DB_NAME).collection(VERIFICATION_COLLECTION);
@@ -169,7 +171,7 @@ pub mod routes {
                                         first_name: None,
                                         last_name: None,
                                         username: None,
-                                        password: None,
+                                        password: password.to_string(),
                                         email: email.to_string(),
                                         last_login_ip: None,
                                         last_login_at: None,

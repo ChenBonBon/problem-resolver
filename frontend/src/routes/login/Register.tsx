@@ -76,14 +76,43 @@ export default function RegisterFormItems(props: IRegisterFormItems) {
         </Row>
       </Form.Item>
       {sended && (
-        <Form.Item
-          name="code"
-          label="验证码"
-          wrapperCol={{ span: 18 }}
-          rules={[{ required: true, message: "请输入验证码" }]}
-        >
-          <Input placeholder="请输入验证码" />
-        </Form.Item>
+        <>
+          <Form.Item
+            name="code"
+            label="验证码"
+            wrapperCol={{ span: 18 }}
+            rules={[{ required: true, message: "请输入验证码" }]}
+          >
+            <Input placeholder="请输入验证码" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="密码"
+            wrapperCol={{ span: 18 }}
+            rules={[{ required: true, message: "请输入密码" }]}
+          >
+            <Input.Password placeholder="请输入密码" />
+          </Form.Item>
+          <Form.Item
+            name="confirmPassword"
+            label="确认密码"
+            wrapperCol={{ span: 18 }}
+            dependencies={["password"]}
+            rules={[
+              { required: true, message: "请再次输入密码" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("两次密码输入不一致"));
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder="请再次输入密码" />
+          </Form.Item>
+        </>
       )}
     </>
   );

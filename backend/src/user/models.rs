@@ -8,7 +8,7 @@ pub struct User {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub username: Option<String>,
-    pub password: Option<String>,
+    pub password: String,
     pub email: String,
     pub last_login_ip: Option<Ipv4Addr>,
     pub last_login_at: Option<DateTime>,

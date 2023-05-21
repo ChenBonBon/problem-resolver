@@ -48,8 +48,8 @@ export default function Login() {
     async (values: any) => {
       if (type === "login") {
       } else {
-        console.log(values);
-        const res = await dispatch.user.register(values);
+        const { email, code, password } = values;
+        const res = await dispatch.user.register({ email, code, password });
 
         if (res) {
           message.success("注册成功");
