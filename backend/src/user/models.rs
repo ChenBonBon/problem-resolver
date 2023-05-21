@@ -5,18 +5,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct User {
-    pub first_name: String,
-    pub last_name: String,
-    pub username: String,
-    pub password: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub username: Option<String>,
+    pub password: Option<String>,
     pub email: String,
-    pub last_login_ip: Ipv4Addr,
-    pub last_login_at: DateTime,
+    pub last_login_ip: Option<Ipv4Addr>,
+    pub last_login_at: Option<DateTime>,
     pub created_at: DateTime,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct Verication {
+pub struct Verification {
     pub code: String,
     pub email: String,
     pub created_at: DateTime,

@@ -76,5 +76,6 @@ pub mod common {
 
     pub const DB_NAME: &str = "problem-resolver";
     pub const VERIFICATION_COLLECTION: &str = "verification";
+    pub const USER_COLLECTION: &str = "user";
     pub const REGISTER_TEMPLATE: &str = "user/register.html";
 }

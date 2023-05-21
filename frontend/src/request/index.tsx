@@ -60,10 +60,17 @@ export default async function request(
             window.history.replaceState(null, "", "/login");
             return false;
           }
+        } else {
+          if (status === 200) {
+            if (json.code === 0) {
+              return json;
+            } else {
+              message.error(json.message);
+              return false;
+            }
+          }
         }
       }
-
-      return json;
     }
   } catch (error) {
     console.error(error);

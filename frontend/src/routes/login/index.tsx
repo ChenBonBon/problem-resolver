@@ -1,5 +1,5 @@
-import { Button, Form } from "antd";
-import { ReactNode, useCallback, useState } from "react";
+import { Button, Form, message } from "antd";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import LoginFormItems from "./Login.tsx";
@@ -41,22 +41,61 @@ export default function Login() {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [type, setType] = useState<LoginType>("login");
+  const [canSubmit, setCanSubmit] = useState(true);
+  const [sended, setSended] = useState(false);
 
   const onFinish = useCallback(
-    (values: any) => {
+    async (values: any) => {
       if (type === "login") {
       } else {
-        dispatch.user.register(values);
+        console.log(values);
+        const res = await dispatch.user.register(values);
+
+        if (res) {
+          message.success("注册成功");
+          setType("login");
+        }
       }
     },
     [type]
   );
 
+  useEffect(() => {
+    return () => {
+      form.resetFields();
+    };
+  }, [type]);
+
+  useEffect(() => {
+    if (type === "login") {
+      setCanSubmit(true);
+    } else {
+      if (sended) {
+        setCanSubmit(true);
+      } else {
+        setCanSubmit(false);
+      }
+    }
+  }, [type, sended]);
+
   return (
     <LoginWrapper>
       <Form layout="vertical" form={form} onFinish={onFinish}>
         {type === "login" && <LoginFormItems />}
-        {type === "register" && <RegisterFormItems />}
+        {type === "register" && (
+          <RegisterFormItems
+            onSend={async () => {
+              const email = form.getFieldValue("email");
+              const res = await dispatch.user.verification({ email });
+
+              if (res) {
+                setSended(true);
+              }
+
+              return res;
+            }}
+          />
+        )}
         <Form.Item>
           <ButtonWrapper>
             <SwitchButton
@@ -73,7 +112,7 @@ export default function Login() {
           </ButtonWrapper>
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" htmlType="submit" block disabled={!canSubmit}>
             {ButtonText[type]}
           </Button>
         </Form.Item>
