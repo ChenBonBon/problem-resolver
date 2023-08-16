@@ -1,22 +1,22 @@
-import { Link } from "react-router-dom";
-import styled from "styled-components";
-import logo from "../assets/logo.svg";
-import Icon from "./Icon";
+import { Link } from "@radix-ui/themes";
+import { useNavigate } from "react-router-dom";
 
-const StyledLogo = styled(Link)`
-  display: flex;
-  align-items: center;
-  height: 100%;
-`;
+export interface ILogo {
+  src: string;
+  alt?: string;
+}
 
-const StyleImg = styled(Icon)`
-  display: inline-flex;
-`;
+export default function Logo(props: ILogo) {
+  const navigate = useNavigate();
 
-export default function Logo() {
   return (
-    <StyledLogo to="/">
-      <StyleImg svg={logo} />
-    </StyledLogo>
+    <Link
+      onClick={(e) => {
+        e.preventDefault();
+        navigate("/");
+      }}
+    >
+      <img src={props.src} alt={props.alt ?? "logo"} />
+    </Link>
   );
 }

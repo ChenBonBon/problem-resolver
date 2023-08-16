@@ -1,12 +1,21 @@
-export default [
+export interface IMenu {
+  key: string;
+  label: string;
+  link?: string;
+  children?: IMenu[];
+}
+
+const menus: IMenu[] = [
   {
     key: "learn",
-    href: "/learn",
     label: "学习",
+    link: "/learn",
   },
   {
-    key: "problem-set",
-    href: "/problem-set",
+    key: "problems",
     label: "题库",
+    link: "/problems",
   },
 ];
+
+export default menus;

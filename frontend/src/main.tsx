@@ -1,31 +1,19 @@
-import { ConfigProvider, Spin } from "antd";
-import zhCN from "antd/locale/zh_CN";
-import dayjs from "dayjs";
-import "dayjs/locale/zh-cn";
+import { Theme } from "@radix-ui/themes";
+import "@radix-ui/themes/styles.css";
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { createGlobalStyle } from "styled-components";
-import App from "./App";
-
-dayjs.locale("zh-cn");
-
-const GlobalStyle = createGlobalStyle`
-  * {
-    margin: 0;
-    padding: 0;
-  }
-`;
+import App from "./App.tsx";
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Suspense fallback={<Spin spinning />}>
-      <BrowserRouter>
-        <ConfigProvider locale={zhCN}>
-          <GlobalStyle />
+    <Theme appearance="light" accentColor="blue">
+      <Suspense>
+        <BrowserRouter>
           <App />
-        </ConfigProvider>
-      </BrowserRouter>
-    </Suspense>
+        </BrowserRouter>
+      </Suspense>
+    </Theme>
   </React.StrictMode>
 );

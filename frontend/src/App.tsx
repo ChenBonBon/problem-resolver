@@ -1,39 +1,50 @@
-import "antd/dist/reset.css";
-import { lazy } from "react";
-import { Provider } from "react-redux";
+import { Container } from "@radix-ui/themes";
 import { Route, Routes } from "react-router-dom";
-import FullScreen from "./components/FullScreen";
-import AdminLayout from "./layouts/AdminLayout";
-import BasicLayout from "./layouts/BasicLayout";
-import { store } from "./store";
+import { useTitle } from "react-use";
+import styled from "styled-components";
+import logo from "./assets/logo.svg";
+import logoSmall from "./assets/logo_small.svg";
+import Nav from "./components/Nav";
+import Toast from "./components/Toast.tsx";
+import { AppName, AppNameEn } from "./constants";
+import useBreakpoint from "./hooks/useBreakpoint";
+import useToast from "./hooks/useToast.ts";
+import menus from "./menus";
+import routes from "./routes";
 
-const Home = lazy(() => import("./routes/Home"));
-const Learn = lazy(() => import("./routes/Learn"));
-const ProblemSet = lazy(() => import("./routes/ProblemSet"));
-
-const AdminProblem = lazy(() => import("./routes/admin/Problem"));
-const AdminProblemType = lazy(() => import("./routes/admin/ProblemType"));
-
-const Login = lazy(() => import("./routes/login"));
+const Wrapper = styled(Container)`
+  max-width: 1280px;
+  padding: 0 24px;
+`;
 
 function App() {
+  useTitle(`${AppNameEn} - ${AppName}`);
+
+  const { isSmallScreen } = useBreakpoint();
+  const { visible, description, setVisible } = useToast();
+
   return (
-    <Provider store={store}>
-      <FullScreen>
+    <Wrapper>
+      <Nav
+        logo={{
+          src: isSmallScreen ? logoSmall : logo,
+          alt: AppName,
+        }}
+        menus={menus}
+      />
+      <Container>
         <Routes>
-          <Route path="/" element={<BasicLayout />}>
-            <Route path="" element={<Home />} />
-            <Route path="learn" element={<Learn />} />
-            <Route path="problem-set" element={<ProblemSet />} />
-            <Route path="admin" element={<AdminLayout />}>
-              <Route path="problem" element={<AdminProblem />} />
-              <Route path="problem-type" element={<AdminProblemType />} />
-            </Route>
-            <Route path="login" element={<Login />} />
-          </Route>
+          {routes.map((route) => (
+            <Route key={route.key} path={route.path} element={route.element} />
+          ))}
         </Routes>
-      </FullScreen>
-    </Provider>
+      </Container>
+      <Toast
+        visible={visible}
+        description={description}
+        setVisible={setVisible}
+      />
+    </Wrapper>
   );
 }
 
