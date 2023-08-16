@@ -10,7 +10,7 @@ export default defineMock([
       "list|1-100": [
         {
           "id|+1": 1,
-          name: "@cparagraph",
+          name: "@csentence(4, 20)",
           "status|1": ["unsolved", "processing", "solved"],
           answers: "@natural(1, 10000)",
           passRate: "@float(0, 100, 2, 2)",
@@ -27,19 +27,19 @@ export default defineMock([
         code: 0,
         data: {
           "id|+1": params.id,
-          name: "@cparagraph",
+          name: "@csentence(4, 20)",
           "status|1": ["unsolved", "processing", "solved"],
           answers: "@natural(1, 10000)",
           passRate: "@float(0, 100, 2, 2)",
           "difficulty|1": ["easy", "medium", "hard"],
-          description: "@cparagraph",
+          description: "@csentence(10, 100)",
           comments: "@natural(1, 10000)",
           "examples|1-10": [
             {
               "id|+1": 1,
-              input: "@paragraph",
-              output: "@paragraph",
-              explanation: "@cparagraph",
+              input: "@sentence(10, 20)",
+              output: "@sentence(10, 20)",
+              explanation: "@csentence(10, 100)",
             },
           ],
         },

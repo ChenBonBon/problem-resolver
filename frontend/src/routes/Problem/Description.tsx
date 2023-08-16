@@ -18,7 +18,7 @@ export default function Description(props: IDescription) {
   const { isSmallScreen } = useBreakpoint();
 
   const size = useMemo(() => {
-    return isSmallScreen ? "2" : "3";
+    return isSmallScreen ? "3" : "4";
   }, [isSmallScreen]);
 
   return (
@@ -30,7 +30,7 @@ export default function Description(props: IDescription) {
       </Box>
       <div>{renderStatus(props.status)}</div>
       <Box py={size}>
-        <Text size={isSmallScreen ? "1" : "2"}>{props.description}</Text>
+        <Text size={isSmallScreen ? "2" : "3"}>{props.description}</Text>
       </Box>
       <Flex direction="column" gap="5">
         {props.examples.map((example, index) => (
