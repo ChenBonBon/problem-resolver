@@ -1,6 +1,6 @@
-import { Badge, Table as DefaultTable } from "@radix-ui/themes";
+import { Badge, Table as DefaultTable, Link } from "@radix-ui/themes";
 import { useCallback, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { styled } from "styled-components";
 import useSWR from "swr";
 import Table from "../components/Table";
@@ -40,6 +40,7 @@ const columns = [
 ];
 
 export default function Problems() {
+  const navigate = useNavigate();
   const { data, error, isLoading } = useSWR<{
     code: number;
     list: IProblem[];
@@ -73,7 +74,14 @@ export default function Problems() {
             {renderStatus(problem.status)}
           </DefaultTable.RowHeaderCell>
           <TableCell maxwidth={640}>
-            <Link to={`/problems/${problem.id}`}>{problem.name}</Link>
+            <Link
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`/problems/${problem.id}`);
+              }}
+            >
+              {problem.name}
+            </Link>
           </TableCell>
           <TableCell>{problem.answers}</TableCell>
           <TableCell>{problem.passRate}</TableCell>

@@ -13,6 +13,10 @@ interface INav {
 
 const Wrapper = styled.nav`
   padding: 16px 0;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1;
 `;
 
 export default function Nav(props: INav) {

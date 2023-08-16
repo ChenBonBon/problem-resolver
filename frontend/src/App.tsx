@@ -4,6 +4,7 @@ import { useTitle } from "react-use";
 import styled from "styled-components";
 import logo from "./assets/logo.svg";
 import logoSmall from "./assets/logo_small.svg";
+import Footer from "./components/Footer.tsx";
 import Nav from "./components/Nav";
 import Toast from "./components/Toast.tsx";
 import { AppName, AppNameEn } from "./constants";
@@ -44,6 +45,7 @@ function App() {
         description={description}
         setVisible={setVisible}
       />
+      <Footer />
     </Wrapper>
   );
 }
