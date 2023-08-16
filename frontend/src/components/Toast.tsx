@@ -18,6 +18,7 @@ const Wrapper = styled.div`
   background-color: white;
   display: flex;
   flex-direction: column;
+  z-index: 9;
 `;
 
 export default function Toast(props: IToast) {
