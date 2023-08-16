@@ -18,6 +18,10 @@ const Wrapper = styled(Container)`
   padding: 0 24px;
 `;
 
+const Content = styled(Container)`
+  padding-bottom: 56px;
+`;
+
 function App() {
   useTitle(`${AppNameEn} - ${AppName}`);
 
@@ -33,13 +37,13 @@ function App() {
         }}
         menus={menus}
       />
-      <Container>
+      <Content>
         <Routes>
           {routes.map((route) => (
             <Route key={route.key} path={route.path} element={route.element} />
           ))}
         </Routes>
-      </Container>
+      </Content>
       <Toast
         visible={visible}
         description={description}

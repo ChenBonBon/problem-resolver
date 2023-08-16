@@ -2,7 +2,7 @@ import { Link } from "@radix-ui/themes";
 import { styled } from "styled-components";
 
 const Wrapper = styled.footer`
-  position: sticky;
+  position: fixed;
   bottom: 0;
   text-align: center;
   padding: 16px 0;

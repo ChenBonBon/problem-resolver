@@ -91,7 +91,7 @@ export default function Problems() {
     }
 
     return null;
-  }, [data, renderStatus]);
+  }, [data, navigate, renderStatus]);
 
   useEffect(() => {
     if (isLoading) {
