@@ -5,6 +5,8 @@
 ### Added
 
 - 添加 Footer 组件
+- 添加 LinkText 组件
+- 添加问题详情页
 
 ### Changed
 

@@ -1,9 +1,9 @@
-import { Flex, Grid } from "@radix-ui/themes";
-import { useNavigate } from "react-router-dom";
+import { Flex, Tabs } from "@radix-ui/themes";
+import { useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import useBreakpoint from "../hooks/useBreakpoint";
 import { IMenu } from "../menus";
-import StyledButton from "./Button";
+import LinkText from "./LinkText";
 import Logo, { ILogo } from "./Logo";
 
 interface INav {
@@ -21,29 +21,39 @@ const Wrapper = styled.nav`
 
 export default function Nav(props: INav) {
   const navigate = useNavigate();
-  const { isSmallScreen } = useBreakpoint();
+  let { pathname } = useLocation();
+
+  const menuLink = useMemo(() => {
+    return pathname.substring(
+      0,
+      pathname.lastIndexOf("/") > 0
+        ? pathname.lastIndexOf("/")
+        : pathname.length
+    );
+  }, []);
 
   return (
     <Wrapper>
       <Flex gap="5" align="center">
         {props.logo && <Logo {...props.logo} />}
         {props.menus && (
-          <Grid columns={props.menus.length.toString()} gap="5" width="auto">
-            {props.menus.map((menu) => (
-              <StyledButton
-                key={menu.key}
-                variant="ghost"
-                size={isSmallScreen ? "3" : "4"}
-                onClick={() => {
-                  if (menu.link) {
-                    navigate(menu.link);
-                  }
-                }}
-              >
-                {menu.label}
-              </StyledButton>
-            ))}
-          </Grid>
+          <Tabs.Root defaultValue={menuLink}>
+            <Tabs.List size="2">
+              {props.menus.map((menu) => (
+                <Tabs.Trigger key={menu.key} value={menu.link ?? ""}>
+                  <LinkText
+                    onClick={() => {
+                      if (menu.link) {
+                        navigate(menu.link);
+                      }
+                    }}
+                  >
+                    {menu.label}
+                  </LinkText>
+                </Tabs.Trigger>
+              ))}
+            </Tabs.List>
+          </Tabs.Root>
         )}
       </Flex>
     </Wrapper>

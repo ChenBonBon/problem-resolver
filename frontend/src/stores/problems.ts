@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
-export interface IProblem {
-  id: number;
+export interface IProblemBase {
+  id: string;
   name: string;
   status: "unsolved" | "processing" | "solved";
   answers: number;
@@ -9,15 +9,28 @@ export interface IProblem {
   difficulty: "easy" | "medium" | "hard";
 }
 
+export interface IProblem extends IProblemBase {
+  description: string;
+  comments: number;
+  examples: IExample[];
+}
+
+export interface IExample {
+  id: string;
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 interface IProblemsStore {
-  problems: IProblem[];
-  setProblems: (newProblems: IProblem[]) => void;
+  problems: IProblemBase[];
+  setProblems: (newProblems: IProblemBase[]) => void;
 }
 
 const useProblemsStore = create<IProblemsStore>((set) => ({
   problems: [],
 
-  setProblems: (newProblems: IProblem[]) => set({ problems: newProblems }),
+  setProblems: (newProblems: IProblemBase[]) => set({ problems: newProblems }),
 }));
 
 export default useProblemsStore;

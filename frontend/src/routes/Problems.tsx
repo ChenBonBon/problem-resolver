@@ -1,12 +1,11 @@
 import { Badge, Table as DefaultTable, Link } from "@radix-ui/themes";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { styled } from "styled-components";
 import useSWR from "swr";
 import Table from "../components/Table";
 import useLoading from "../hooks/useLoading";
 import useToast from "../hooks/useToast";
-import { getProblems } from "../requests/problems";
 import { IProblem } from "../stores/problems";
 
 const TableCell = styled(DefaultTable.Cell)<{ maxwidth?: number }>`
@@ -39,32 +38,33 @@ const columns = [
   },
 ];
 
+export const renderStatus = (status: IProblem["status"]) => {
+  const statusMap: {
+    [key in IProblem["status"]]: {
+      label: string;
+      color: Color;
+    };
+  } = {
+    unsolved: { label: "未解决", color: "crimson" },
+    processing: { label: "进行中", color: "orange" },
+    solved: { label: "已解决", color: "green" },
+  };
+
+  const { label, color } = statusMap[status];
+
+  return <Badge color={color}>{label}</Badge>;
+};
+
 export default function Problems() {
   const navigate = useNavigate();
+
   const { data, error, isLoading } = useSWR<{
     code: number;
     list: IProblem[];
-  }>("/api/problems", getProblems);
+  }>("/api/problems");
 
   const { setVisible, setDescription } = useToast();
   const { setIsLoading } = useLoading();
-
-  const renderStatus = useCallback((status: IProblem["status"]) => {
-    const statusMap: {
-      [key in IProblem["status"]]: {
-        label: string;
-        color: Color;
-      };
-    } = {
-      unsolved: { label: "未解决", color: "crimson" },
-      processing: { label: "进行中", color: "orange" },
-      solved: { label: "已解决", color: "green" },
-    };
-
-    const { label, color } = statusMap[status];
-
-    return <Badge color={color}>{label}</Badge>;
-  }, []);
 
   const tableBody = useMemo(() => {
     if (data && data.list) {
