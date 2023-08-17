@@ -20,6 +20,18 @@ export default defineMock([
     }),
   },
   {
+    url: "/api/answers",
+    method: "GET",
+    body: Mock.mock({
+      code: 0,
+      data: {
+        "id|+1": 1,
+        answer: "@csentence(4, 20)",
+        author: "@csentence(4, 20)",
+      },
+    }),
+  },
+  {
     url: "/api/problems/:id",
     method: "GET",
     body({ params }) {

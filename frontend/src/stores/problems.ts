@@ -22,15 +22,29 @@ export interface IExample {
   explanation?: string;
 }
 
+export interface IAnswer {
+  id: string;
+  answer: string;
+  author: string;
+}
+
 interface IProblemsStore {
   problems: IProblemBase[];
+  problem: IProblem | null;
+  answer: IAnswer | null;
   setProblems: (newProblems: IProblemBase[]) => void;
+  setProblem: (newProblem: IProblem | null) => void;
+  setAnswer: (newAnswer: IAnswer | null) => void;
 }
 
 const useProblemsStore = create<IProblemsStore>((set) => ({
   problems: [],
+  problem: null,
+  answer: null,
 
   setProblems: (newProblems: IProblemBase[]) => set({ problems: newProblems }),
+  setProblem: (newProblem: IProblem | null) => set({ problem: newProblem }),
+  setAnswer: (newAnswer: IAnswer | null) => set({ answer: newAnswer }),
 }));
 
 export default useProblemsStore;

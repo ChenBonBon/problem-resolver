@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Text } from "@radix-ui/themes";
+import { Box, Flex, Heading, ScrollArea, Text } from "@radix-ui/themes";
 import { useMemo } from "react";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import { IExample, IProblemBase } from "../../stores/problems";
@@ -22,7 +22,7 @@ export default function Description(props: IDescription) {
   }, [isSmallScreen]);
 
   return (
-    <div>
+    <ScrollArea style={{ height: "calc(100vh - 88px - 56px - 40px)" }}>
       <Box py={size}>
         <Heading as="h2" size={size}>
           {props.id}.{props.name}
@@ -37,6 +37,6 @@ export default function Description(props: IDescription) {
           <Example key={example.id} index={index} {...example} />
         ))}
       </Flex>
-    </div>
+    </ScrollArea>
   );
 }
