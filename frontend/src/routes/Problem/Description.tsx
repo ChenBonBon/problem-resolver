@@ -2,14 +2,13 @@ import { Box, Flex, Heading, ScrollArea, Text } from "@radix-ui/themes";
 import { useMemo } from "react";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import { IExample, IProblemBase } from "../../stores/problems";
-import { renderStatus } from "../Problems";
+import { renderDifficulty } from "../Problems";
 import Example from "./Example";
 
 interface IDescription {
   id: string;
   name: string;
   difficulty: IProblemBase["difficulty"];
-  status: IProblemBase["status"];
   description: string;
   examples: IExample[];
 }
@@ -28,7 +27,7 @@ export default function Description(props: IDescription) {
           {props.id}.{props.name}
         </Heading>
       </Box>
-      <div>{renderStatus(props.status)}</div>
+      <div>{renderDifficulty(props.difficulty)}</div>
       <Box py={size}>
         <Text size={isSmallScreen ? "2" : "3"}>{props.description}</Text>
       </Box>

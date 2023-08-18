@@ -22,6 +22,7 @@ export default function Problem() {
     isLoading: problemIsLoading,
   } = useSWR<{
     code: number;
+    msg: string;
     data: IProblem;
   }>(`/api/problems/${id}`);
 
@@ -42,6 +43,7 @@ export default function Problem() {
     isLoading: answerIsLoading,
   } = useSWR<{
     code: number;
+    msg: string;
     data: IAnswer;
   }>(submitting ? `/api/answers?problem=${id}&label=official` : null);
 
@@ -95,8 +97,18 @@ export default function Problem() {
     setVisible,
   ]);
 
-  const submit = () => {
+  const submit = async () => {
     setSubmitting(true);
+    try {
+      const res = await fetch("/api/problems", {
+        method: "POST",
+        body: JSON.stringify({ name: value }),
+      });
+
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const reset = () => {

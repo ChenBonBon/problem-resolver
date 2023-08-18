@@ -55,20 +55,38 @@ export const renderStatus = (status: IProblem["status"]) => {
   return <Badge color={color}>{label}</Badge>;
 };
 
+export const renderDifficulty = (difficulty: IProblem["difficulty"]) => {
+  const difficultyMap: {
+    [key in IProblem["difficulty"]]: {
+      label: string;
+      color: Color;
+    };
+  } = {
+    easy: { label: "简单", color: "crimson" },
+    medium: { label: "中等", color: "orange" },
+    hard: { label: "困难", color: "green" },
+  };
+
+  const { label, color } = difficultyMap[difficulty];
+
+  return <Badge color={color}>{label}</Badge>;
+};
+
 export default function Problems() {
   const navigate = useNavigate();
 
   const { data, error, isLoading } = useSWR<{
     code: number;
-    list: IProblem[];
+    msg: string;
+    data: IProblem[];
   }>("/api/problems");
 
   const { setVisible, setDescription } = useToast();
   const { setIsLoading } = useLoading();
 
   const tableBody = useMemo(() => {
-    if (data && data.list) {
-      return data.list.map((problem) => (
+    if (data && data.data) {
+      return data.data.map((problem) => (
         <DefaultTable.Row key={problem.id}>
           <DefaultTable.RowHeaderCell>
             {renderStatus(problem.status)}
@@ -85,13 +103,13 @@ export default function Problems() {
           </TableCell>
           <TableCell>{problem.answers}</TableCell>
           <TableCell>{problem.passRate}</TableCell>
-          <TableCell>{problem.difficulty}</TableCell>
+          <TableCell>{renderDifficulty(problem.difficulty)}</TableCell>
         </DefaultTable.Row>
       ));
     }
 
     return null;
-  }, [data, navigate, renderStatus]);
+  }, [data, navigate]);
 
   useEffect(() => {
     if (isLoading) {
