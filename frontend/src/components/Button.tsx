@@ -1,8 +1,8 @@
-import { Button } from "@radix-ui/themes";
+import { Button as DefaultButton } from "@radix-ui/themes";
 import styled from "styled-components";
 
-const StyledButton = styled(Button)<{ onClick?: () => void }>`
+const Button = styled(DefaultButton)<{ onClick?: () => void }>`
   cursor: ${(props) => (props.onClick ? "pointer" : "default")};
 `;
 
-export default StyledButton;
+export default Button;

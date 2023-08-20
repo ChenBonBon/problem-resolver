@@ -1,19 +1,14 @@
 package main
 
 import (
+	"backend/db"
 	"backend/routes"
-	"log/slog"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/middleware/jwt"
 )
-
-type config struct {
-	DB_USER string
-	DB_PASS string
-	DB_NAME string
-}
 
 func main() {
 	ac := makeAccessLog()
@@ -23,7 +18,24 @@ func main() {
 
 	app.UseRouter(ac.Handler)
 
-	connectDB()
+	db.ConnectDB()
+
+	sigKey := os.Getenv("TOKEN_SIG_KEY")
+
+	verifier := jwt.NewVerifier(jwt.HS256, sigKey)
+	verifier.WithDefaultBlocklist()
+	verifyMiddleware := verifier.Verify(func() interface{} {
+        return new(routes.UserClaims)
+    })
+
+	app.Get("/code", routes.GetCode)
+	app.Post("/logout", routes.Logout)
+
+	login := app.Party("/login")
+	{
+		login.Post("/code", routes.LoginWithCode)
+		login.Post("/password", routes.LoginWithPassword)
+	}
 
 	problem := app.Party("/problems")
 	{
@@ -32,27 +44,8 @@ func main() {
 		problem.Post("", routes.AddProblem)
 	}
 
+	user := app.Party("/user")
+	user.Use(verifyMiddleware)
+
 	app.Listen(":8080")
-}
-
-func connectDB() {
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASS")
-	dbName := os.Getenv("DB_NAME")
-
-	var dbConfig config
-
-	dbConfig.DB_USER = dbUser
-	dbConfig.DB_PASS = dbPass
-	dbConfig.DB_NAME = dbName
-
-	db, err := openDB(dbConfig)
-
-	if err != nil {
-		slog.Error("Open database failed.", err)
-	}
-
-	defer db.Close()
-
-	slog.Info("database connection pool established")
 }

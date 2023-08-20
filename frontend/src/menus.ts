@@ -18,4 +18,12 @@ const menus: IMenu[] = [
   },
 ];
 
+export const avatarMenus: IMenu[] = [
+  {
+    key: "my-problems",
+    label: "我的问题",
+    link: "/my-problems",
+  },
+];
+
 export default menus;

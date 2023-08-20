@@ -24,13 +24,14 @@ const (
 )
 
 type Problem struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	CreatedAt   string `json:"created_at"`
-	CreatedBy   string `json:"created_by"`
-	UpdatedAt   string `json:"updated_at"`
-	UpdatedBy   string `json:"updated_by"`
+	Id          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Difficulty  DifficultyType `json:"difficulty"`
+	CreatedAt   string         `json:"created_at"`
+	CreatedBy   string         `json:"created_by"`
+	UpdatedAt   string         `json:"updated_at"`
+	UpdatedBy   string         `json:"updated_by"`
 }
 
 type ProblemListItem struct {
@@ -46,6 +47,6 @@ type ProblemItem struct {
 	Id          string         `json:"id"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
-	Examples    []Example      `json:"examples"`
 	Difficulty  DifficultyType `json:"difficulty"`
+	Examples    []Example      `json:"examples"`
 }

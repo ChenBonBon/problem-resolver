@@ -6,8 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import { SWRConfig } from "swr";
 import App from "./App.tsx";
 import "./index.css";
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+import { request } from "./utils.ts";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -16,7 +15,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <SWRConfig
             value={{
-              fetcher,
+              fetcher: async (input) => {
+                return await request(input, "GET");
+              },
             }}
           >
             <App />

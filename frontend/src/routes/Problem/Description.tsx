@@ -1,8 +1,9 @@
 import { Box, Flex, Heading, ScrollArea, Text } from "@radix-ui/themes";
 import { useMemo } from "react";
+import Badge from "../../components/Badge";
+import { difficultyMap } from "../../constants";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import { IExample, IProblemBase } from "../../stores/problems";
-import { renderDifficulty } from "../Problems";
 import Example from "./Example";
 
 interface IDescription {
@@ -27,7 +28,9 @@ export default function Description(props: IDescription) {
           {props.id}.{props.name}
         </Heading>
       </Box>
-      <div>{renderDifficulty(props.difficulty)}</div>
+      <div>
+        <Badge map={difficultyMap} value={props.difficulty} />
+      </div>
       <Box py={size}>
         <Text size={isSmallScreen ? "2" : "3"}>{props.description}</Text>
       </Box>

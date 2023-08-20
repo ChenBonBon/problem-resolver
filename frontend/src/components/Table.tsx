@@ -25,6 +25,21 @@ const Wrapper = styled.div`
   height: 500px;
 `;
 
+export const TableCell = styled(DefaultTable.Cell)<{ maxwidth?: number }>`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: ${(props) => props.maxwidth}px;
+`;
+
+
+export const TableRowHeaderCell = styled(DefaultTable.RowHeaderCell)<{ maxwidth?: number }>`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: ${(props) => props.maxwidth}px;
+`;
+
 export default function Table(props: ITable) {
   return (
     <>

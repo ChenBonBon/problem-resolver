@@ -8,6 +8,18 @@
 - 添加 LinkText 组件
 - 添加问题详情页
 - 添加问题答题区域
+- 添加 request 函数
+- 添加 Avatar 组件
+- 添加 Button 组件
+- 添加 Badge 组件
+- 添加 ErrorText 组件
+- 添加 Table 组件
+- 添加 Toast 组件
+- 添加 useLogin
+- 添加 useToast
+- 添加登录页
+- 添加验证码登录
+- 添加账号密码登录
 
 ### Changed
 

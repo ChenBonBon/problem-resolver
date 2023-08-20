@@ -3,16 +3,26 @@ import { create } from "zustand";
 export interface IProblemBase {
   id: string;
   name: string;
-  status: "unsolved" | "processing" | "solved";
-  answers: number;
-  passRate: number;
+  group: string;
   difficulty: "easy" | "medium" | "hard";
+}
+
+export interface IProblemListItem extends IProblemBase {
+  passRate: number;
+  answers: number;
+  status: "unsolved" | "processing" | "solved";
 }
 
 export interface IProblem extends IProblemBase {
   description: string;
   comments: number;
+  answers: number;
   examples: IExample[];
+}
+
+export interface IUserProblem extends IProblemBase {
+  createdAt: string;
+  status: "disabled" | "enabled";
 }
 
 export interface IExample {

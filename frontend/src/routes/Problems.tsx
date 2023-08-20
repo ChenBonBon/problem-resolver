@@ -1,19 +1,13 @@
-import { Badge, Table as DefaultTable, Link } from "@radix-ui/themes";
+import { Table as DefaultTable, Link } from "@radix-ui/themes";
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { styled } from "styled-components";
 import useSWR from "swr";
-import Table from "../components/Table";
+import Badge, { IBadge } from "../components/Badge";
+import Table, { TableCell } from "../components/Table";
+import { difficultyMap } from "../constants";
 import useLoading from "../hooks/useLoading";
 import useToast from "../hooks/useToast";
-import { IProblem } from "../stores/problems";
-
-const TableCell = styled(DefaultTable.Cell)<{ maxwidth?: number }>`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: ${(props) => props.maxwidth}px;
-`;
+import { IProblemListItem } from "../stores/problems";
 
 const columns = [
   {
@@ -23,6 +17,10 @@ const columns = [
   {
     key: "name",
     label: "题目",
+  },
+  {
+    key: "group",
+    label: "分类",
   },
   {
     key: "answers",
@@ -38,38 +36,10 @@ const columns = [
   },
 ];
 
-export const renderStatus = (status: IProblem["status"]) => {
-  const statusMap: {
-    [key in IProblem["status"]]: {
-      label: string;
-      color: Color;
-    };
-  } = {
-    unsolved: { label: "未解决", color: "crimson" },
-    processing: { label: "进行中", color: "orange" },
-    solved: { label: "已解决", color: "green" },
-  };
-
-  const { label, color } = statusMap[status];
-
-  return <Badge color={color}>{label}</Badge>;
-};
-
-export const renderDifficulty = (difficulty: IProblem["difficulty"]) => {
-  const difficultyMap: {
-    [key in IProblem["difficulty"]]: {
-      label: string;
-      color: Color;
-    };
-  } = {
-    easy: { label: "简单", color: "crimson" },
-    medium: { label: "中等", color: "orange" },
-    hard: { label: "困难", color: "green" },
-  };
-
-  const { label, color } = difficultyMap[difficulty];
-
-  return <Badge color={color}>{label}</Badge>;
+const statusMap: IBadge["map"] = {
+  unsolved: { label: "未解决", color: "crimson" },
+  processing: { label: "进行中", color: "orange" },
+  solved: { label: "已解决", color: "green" },
 };
 
 export default function Problems() {
@@ -78,18 +48,18 @@ export default function Problems() {
   const { data, error, isLoading } = useSWR<{
     code: number;
     msg: string;
-    data: IProblem[];
+    data: IProblemListItem[];
   }>("/api/problems");
 
-  const { setVisible, setDescription } = useToast();
+  const { setType, setVisible, setDescription } = useToast();
   const { setIsLoading } = useLoading();
 
-  const tableBody = useMemo(() => {
+  const TableBody = useMemo(() => {
     if (data && data.data) {
       return data.data.map((problem) => (
         <DefaultTable.Row key={problem.id}>
           <DefaultTable.RowHeaderCell>
-            {renderStatus(problem.status)}
+            <Badge map={statusMap} value={problem.status} />
           </DefaultTable.RowHeaderCell>
           <TableCell maxwidth={640}>
             <Link
@@ -101,9 +71,12 @@ export default function Problems() {
               {problem.name}
             </Link>
           </TableCell>
+          <TableCell>{problem.group}</TableCell>
           <TableCell>{problem.answers}</TableCell>
           <TableCell>{problem.passRate}</TableCell>
-          <TableCell>{renderDifficulty(problem.difficulty)}</TableCell>
+          <TableCell>
+            <Badge map={difficultyMap} value={problem.difficulty} />
+          </TableCell>
         </DefaultTable.Row>
       ));
     }
@@ -117,6 +90,7 @@ export default function Problems() {
     }
 
     if (error) {
+      setType("error");
       setDescription("Oops, 接口异常了");
       setVisible(true);
     }
@@ -124,7 +98,7 @@ export default function Problems() {
 
   return (
     <Table columns={columns} isLoading={isLoading}>
-      {tableBody}
+      {TableBody}
     </Table>
   );
 }

@@ -15,3 +15,40 @@ export function addNumberUnit(num: number) {
 
   return (num / si[i].value).toFixed(1).replace(rx, "$1") + si[i].symbol;
 }
+
+export async function request(
+  url: string,
+  method: RequestInit["method"],
+  body?: any
+) {
+  const options: RequestInit = {
+    method,
+    credentials: "omit",
+  };
+
+  const headers: RequestInit["headers"] = {
+    "Content-Type": "application/json",
+  };
+
+  const token = window.localStorage.getItem("token");
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  options.headers = headers;
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  try {
+    const res = await fetch(url, options);
+    if (res) {
+      const json = await res.json();
+      return json;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}

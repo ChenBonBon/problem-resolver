@@ -2,7 +2,7 @@ import { Flex, Grid, Heading, Tabs } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR from "swr";
-import StyledButton from "../../components/Button";
+import Button from "../../components/Button";
 import LinkText from "../../components/LinkText";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import useLoading from "../../hooks/useLoading";
@@ -26,7 +26,7 @@ export default function Problem() {
     data: IProblem;
   }>(`/api/problems/${id}`);
 
-  const { setVisible, setDescription } = useToast();
+  const { setType, setVisible, setDescription } = useToast();
   const { setIsLoading } = useLoading();
   const { isSmallScreen } = useBreakpoint();
   const problem = useProblemsStore((state) => state.problem);
@@ -51,6 +51,7 @@ export default function Problem() {
     setIsLoading(problemIsLoading);
 
     if (problemError) {
+      setType("error");
       setDescription("Oops, 接口异常了");
       setVisible(true);
       setProblem(null);
@@ -78,6 +79,7 @@ export default function Problem() {
     }
 
     if (answerError) {
+      setType("error");
       setDescription("Oops, 接口异常了");
       setVisible(true);
       setAnswer(null);
@@ -143,20 +145,20 @@ export default function Problem() {
         <Editor value={value} onChange={setValue} />
         {problem && answer && <Answer name={problem.name} {...answer} />}
         <Flex py="3" justify="end" gap="3">
-          <StyledButton
+          <Button
             onClick={reset}
             disabled={value.length === 0 || submitting}
             variant="soft"
           >
             重做
-          </StyledButton>
-          <StyledButton
+          </Button>
+          <Button
             onClick={submit}
             disabled={value.length === 0 || submitting}
             color="green"
           >
             提交
-          </StyledButton>
+          </Button>
         </Flex>
       </Flex>
     </Grid>

@@ -1,11 +1,23 @@
-package main
+package db
 
 import (
 	"context"
 	"database/sql"
+	"log/slog"
+	"os"
 	"time"
 
 	_ "github.com/lib/pq"
+)
+
+type config struct {
+	DB_USER string
+	DB_PASS string
+	DB_NAME string
+}
+
+var (
+	DB *sql.DB
 )
 
 func openDB(dbConfig config) (*sql.DB, error) {
@@ -26,4 +38,27 @@ func openDB(dbConfig config) (*sql.DB, error) {
 	}
 	// 返回sql.DB连接池
 	return db, nil
+}
+
+func ConnectDB() {
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASS")
+	dbName := os.Getenv("DB_NAME")
+
+	var dbConfig config
+
+	dbConfig.DB_USER = dbUser
+	dbConfig.DB_PASS = dbPass
+	dbConfig.DB_NAME = dbName
+
+	db, err := openDB(dbConfig)
+
+
+	if err != nil {
+		slog.Error("Open database failed.", err)
+	}
+
+	DB = db
+
+	slog.Info("database connection pool established")
 }

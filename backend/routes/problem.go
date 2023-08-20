@@ -1,40 +1,46 @@
 package routes
 
 import (
+	"backend/db"
 	"backend/models"
 
 	"github.com/kataras/iris/v12"
 )
 
 func GetProblems(ctx iris.Context) {
-	problems := []models.ProblemListItem{
-		{
-			Id:         "1",
-			Name:       "problem1",
+	rows, err := db.DB.Query("SELECT id, name, difficulty FROM problems")
+
+	if err != nil {
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Select Problem"))
+		return
+	}
+
+	var problems []models.ProblemListItem
+
+	for rows.Next() {
+		var id string
+		var name string
+		var difficulty models.DifficultyType
+
+		err = rows.Scan(&id, &name, &difficulty)
+
+		if err != nil {
+			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Scan Problem"))
+			return
+		}
+
+		problems = append(problems, models.ProblemListItem{
+			Id:         id,
+			Name:       name,
 			Status:     models.Unsolved,
 			Answers:    0,
 			PassRate:   0,
-			Difficulty: models.Easy,
-		},
-		{
-			Id:         "2",
-			Name:       "problem2",
-			Status:     models.Processing,
-			Answers:    0,
-			PassRate:   0,
-			Difficulty: models.Easy,
-		},
-		{
-			Id:         "3",
-			Name:       "problem3",
-			Status:     models.Processing,
-			Answers:    0,
-			PassRate:   0,
-			Difficulty: models.Medium,
-		},
+			Difficulty: difficulty,
+		})
+
 	}
 
-	ctx.JSON(Response{
+	ctx.JSON(Success{
 		Code: 0,
 		Msg:  "success",
 		Data: problems,
@@ -59,7 +65,7 @@ func GetProblem(ctx iris.Context) {
 		Difficulty: models.Medium,
 	}
 
-	ctx.JSON(Response{
+	ctx.JSON(Success{
 		Code: 0,
 		Msg:  "success",
 		Data: problem,
@@ -69,15 +75,23 @@ func GetProblem(ctx iris.Context) {
 func AddProblem(ctx iris.Context) {
 	var problem models.Problem
 
-	err := ctx.ReadJSON(&problem);
-	
+	err := ctx.ReadJSON(&problem)
+
 	if err != nil {
-		ctx.StopWithError(iris.StatusBadRequest, err)
+		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("Bad Request").Detail(err.Error()).Type("Param Problem"))
 		return
 	}
 
-	ctx.JSON(Response{
+	var lastInsertId int
+	err = db.DB.QueryRow("INSERT INTO problems(name, description, difficulty) VALUES($1, $2, $3) RETURNING id", problem.Name, problem.Description, problem.Difficulty).Scan(&lastInsertId)
+
+	if err != nil {
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Insert Problem"))
+	}
+
+	ctx.JSON(Success{
 		Code: 0,
 		Msg:  "success",
+		Data: lastInsertId,
 	})
 }
