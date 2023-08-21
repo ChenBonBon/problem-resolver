@@ -67,7 +67,7 @@ export default function Login() {
         </Flex>
       );
     }
-  }, [loginType]);
+  }, [loginType, navigate]);
 
   return (
     <Flex justify="center" direction="column" align="center">

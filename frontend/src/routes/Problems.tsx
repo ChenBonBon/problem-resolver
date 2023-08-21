@@ -94,7 +94,7 @@ export default function Problems() {
       setDescription("Oops, 接口异常了");
       setVisible(true);
     }
-  }, [error, isLoading, setDescription, setIsLoading, setVisible]);
+  }, [error, isLoading, setDescription, setIsLoading, setType, setVisible]);
 
   return (
     <Table columns={columns} isLoading={isLoading}>

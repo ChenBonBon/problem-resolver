@@ -39,7 +39,7 @@ export default function Toast(props: IToast) {
         props.setVisible(false);
       }
     }
-  }, [remaining]);
+  }, [props, remaining]);
 
   return (
     <Wrapper>

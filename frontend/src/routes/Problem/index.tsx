@@ -68,6 +68,7 @@ export default function Problem() {
     setDescription,
     setIsLoading,
     setProblem,
+    setType,
     setVisible,
   ]);
 
@@ -96,6 +97,7 @@ export default function Problem() {
     setDescription,
     setIsLoading,
     setProblem,
+    setType,
     setVisible,
   ]);
 

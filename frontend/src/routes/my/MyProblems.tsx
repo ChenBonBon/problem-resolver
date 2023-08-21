@@ -75,12 +75,18 @@ export default function MyProblems() {
     }
 
     return null;
-  }, [data, navigate]);
+  }, [data]);
 
   return (
     <div>
       <Flex justify="end">
-        <Button onClick={() => {}}>新增</Button>
+        <Button
+          onClick={() => {
+            navigate("/problem/new");
+          }}
+        >
+          新增
+        </Button>
       </Flex>
       <Table columns={columns} isLoading={isLoading}>
         {TableBody}
