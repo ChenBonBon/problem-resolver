@@ -70,11 +70,16 @@ export default function useLogin() {
   }
 
   useEffect(() => {
-    if (window.localStorage.getItem("token")) {
-      toggleIsLogin(true);
-    } else {
-      toggleIsLogin(false);
+    async function init() {
+      if (window.localStorage.getItem("token")) {
+        const res = await request("/api/token", "GET");
+        console.log(res);
+      } else {
+        toggleIsLogin(false);
+      }
     }
+
+    init();
   }, []);
 
   return { sended, isLogin, getCode, loginWithPassword, loginWithCode, logout };

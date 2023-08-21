@@ -6,7 +6,7 @@ interface ILoginStore {
 }
 
 const useLoginStore = create<ILoginStore>((set) => ({
-  checked: false,
+  checked: window.localStorage.getItem("agreeLicense") ? true : false,
   setChecked: (newChecked) => set({ checked: newChecked }),
 }));
 

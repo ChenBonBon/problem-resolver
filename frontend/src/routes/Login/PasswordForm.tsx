@@ -1,11 +1,14 @@
 import { TextField } from "@radix-ui/themes";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToggle } from "react-use";
 import Button from "../../components/Button";
 import ErrorText from "../../components/ErrorText";
 import useLogin from "../../hooks/useLogin";
 
 export default function PasswordForm() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -42,7 +45,7 @@ export default function PasswordForm() {
         {passwordError && <ErrorText>请输入密码</ErrorText>}
       </div>
       <Button
-        onClick={() => {
+        onClick={async () => {
           if (form.username.length === 0) {
             toggleUsernameError(true);
             return;
@@ -57,7 +60,9 @@ export default function PasswordForm() {
             togglePasswordError(false);
           }
 
-          loginWithPassword(form.username, form.password);
+          await loginWithPassword(form.username, form.password);
+          navigate(window.localStorage.getItem("redirect") ?? "/");
+          window.localStorage.removeItem("redirect");
         }}
       >
         登录

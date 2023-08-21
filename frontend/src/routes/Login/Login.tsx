@@ -81,6 +81,11 @@ export default function Login() {
               checked={checked}
               onCheckedChange={(checked) => {
                 setChecked(checked as boolean);
+                if (checked) {
+                  window.localStorage.setItem("agreeLicense", "true");
+                } else {
+                  window.localStorage.removeItem("agreeLicense");
+                }
               }}
             />
             <Text size="1">

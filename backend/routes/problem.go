@@ -18,7 +18,7 @@ func GetProblems(ctx iris.Context) {
 	var problems []models.ProblemListItem
 
 	for rows.Next() {
-		var id string
+		var id int
 		var name string
 		var difficulty models.DifficultyType
 
@@ -48,28 +48,14 @@ func GetProblems(ctx iris.Context) {
 }
 
 func GetProblem(ctx iris.Context) {
-	id := ctx.Params().Get("id")
-	problem := models.ProblemItem{
-		Id:          id,
-		Name:        "problem" + id,
-		Description: "description",
-		Examples: []models.Example{
-			{
-				Id:          "1",
-				Input:       "input",
-				Output:      "output",
-				Explanation: "explanation",
-				Image:       "image",
-			},
-		},
-		Difficulty: models.Medium,
-	}
+	// id, err := strconv.Atoi(ctx.Params().Get("id"))
 
-	ctx.JSON(Success{
-		Code: 0,
-		Msg:  "success",
-		Data: problem,
-	})
+
+	// ctx.JSON(Success{
+	// 	Code: 0,
+	// 	Msg:  "success",
+	// 	Data: ,
+	// })
 }
 
 func AddProblem(ctx iris.Context) {

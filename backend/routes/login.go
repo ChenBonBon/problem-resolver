@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"backend/db"
 	"backend/models"
 	"crypto/rand"
 	"math/big"
@@ -14,7 +13,7 @@ import (
 )
 
 type UserClaims struct {
-	UserID string `json:"user_id"`
+	UserID int `json:"user_id"`
 }
 
 func GetCode(ctx iris.Context) {
@@ -26,17 +25,15 @@ func GetCode(ctx iris.Context) {
 		code = append(code, n.String())
 	}
 
-	var lastInsertId string
-	err := db.DB.QueryRow("INSERT INTO user_codes(email, code) VALUES($1, $2) RETURNING id", email, strings.Join(code, "")).Scan(&lastInsertId)
+	err := models.AddCode(email, strings.Join(code, ""))
 
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Insert Problem"))
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("生成验证码失败").Detail(err.Error()).Type("Insert Problem"))
 	}
 
 	ctx.JSON(Success{
 		Code: 0,
 		Msg:  "success",
-		Data: lastInsertId,
 	})
 }
 
@@ -46,15 +43,14 @@ func LoginWithPassword(ctx iris.Context) {
 	err := ctx.ReadJSON(&login)
 
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("Bad Request").Detail(err.Error()).Type("Param Problem"))
+		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("用户名或密码错误").Detail(err.Error()).Type("Param Problem"))
 		return
 	}
 
-	var userId string
-	err = db.DB.QueryRow("SELECT id FROM users WHERE username = $1 AND password = $2", login.Username, login.Password).Scan(&userId)
+	userId, err := models.GetUserByPassword(login.Username, login.Password)
 
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Scan Problem"))
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("获取用户信息失败").Detail(err.Error()).Type("Scan Problem"))
 		return
 	}
 
@@ -65,7 +61,7 @@ func LoginWithPassword(ctx iris.Context) {
 
 	token, err := signer.Sign(claims)
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Sign Problem"))
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
 		return
 	}
 
@@ -86,11 +82,7 @@ func LoginWithCode(ctx iris.Context) {
 		return
 	}
 
-	var userId string
-	var used bool
-	var expired_at time.Time
-
-	err = db.DB.QueryRow("SELECT used, expired_at FROM user_codes WHERE email = $1 AND code = $2 ORDER BY created_at DESC limit 1", login.Email, login.Code).Scan(&used, &expired_at)
+	used, expired_at, err := models.GetCodeStatus(login.Email, login.Code)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("邮箱或验证码错误").Detail(err.Error()).Type("Scan Problem"))
@@ -107,30 +99,29 @@ func LoginWithCode(ctx iris.Context) {
 		return
 	}
 
-	stmt, err := db.DB.Prepare("UPDATE user_codes SET used = true WHERE email = $1 AND code = $2")
+	err = models.UpdateCodeStatus(login.Email, login.Code)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("更新验证码状态异常").Detail(err.Error()).Type("Prepare Problem"))
 		return
 	}
 
-	res, err := stmt.Exec(login.Email, login.Code)
+	userId, err := models.GetUserByEmail(login.Email)
 
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("更新验证码状态异常").Detail(err.Error()).Type("Exec Problem"))
-		return
+		if userId == 0 {
+			emailArr := strings.Split(login.Email, "@")
+			newUserId, err := models.AddUserByCode(login.Email, emailArr[0])
+			userId = newUserId
+			if err != nil {
+				ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("创建用户失败").Detail(err.Error()).Type("Insert Problem"))
+				return
+			}
+		} else {
+			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("获取用户信息失败").Detail(err.Error()).Type("Scan Problem"))
+			return
+		}
 	}
-
-	var _ int64
-	affected, err := res.RowsAffected()
-
-	_ = affected
-
-	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("更新验证码状态异常").Detail(err.Error()).Type("RowsAffected Problem"))
-		return
-	}
-
 
 	sigKey := os.Getenv("TOKEN_SIG_KEY")
 
@@ -139,7 +130,7 @@ func LoginWithCode(ctx iris.Context) {
 
 	token, err := signer.Sign(claims)
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Sign Problem"))
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
 		return
 	}
 
@@ -147,6 +138,17 @@ func LoginWithCode(ctx iris.Context) {
 		Code: 0,
 		Msg:  "success",
 		Data: token,
+	})
+}
+
+func GetToken(ctx iris.Context) {
+	println("GetToken: ", jwt.Get(ctx))
+	claims := jwt.Get(ctx).(*UserClaims)
+
+	println("claims: ", claims)
+	ctx.JSON(Success{
+		Code: 0,
+		Msg:  "success",
 	})
 }
 

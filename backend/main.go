@@ -28,8 +28,14 @@ func main() {
         return new(routes.UserClaims)
     })
 
+	tokenAPI := app.Party("/token")
+	tokenAPI.Use(verifyMiddleware)
+	tokenAPI.Get("", protected)
+	logoutAPI := app.Party("/logout")
+	logoutAPI.Use(verifyMiddleware)
+	logoutAPI.Post("/logout", routes.Logout)
+
 	app.Get("/code", routes.GetCode)
-	app.Post("/logout", routes.Logout)
 
 	login := app.Party("/login")
 	{
@@ -48,4 +54,18 @@ func main() {
 	user.Use(verifyMiddleware)
 
 	app.Listen(":8080")
+}
+
+func protected(ctx iris.Context) {
+    token := jwt.GetVerifiedToken(ctx)
+
+    var claims routes.UserClaims
+    if err := token.Claims(&claims); err != nil {
+        ctx.StopWithError(iris.StatusInternalServerError, err)
+        return
+    }
+
+    userID := claims.UserID
+
+    ctx.Writef("user_id=%d\n", userID)
 }

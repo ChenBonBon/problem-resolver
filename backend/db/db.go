@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
@@ -44,8 +43,6 @@ func ConnectDB() {
 	DB = db
 
 	slog.Info("database connection pool established")
-
-	startMigrate(dbConfig)
 }
 
 func openDB(dbConfig config) (*sql.DB, error) {
@@ -66,18 +63,4 @@ func openDB(dbConfig config) (*sql.DB, error) {
 	}
 	// 返回sql.DB连接池
 	return db, nil
-}
-
-func startMigrate(dbConfig config) {
-	m, err := migrate.New(
-		"file://db/migrations",
-		"postgres://"+dbConfig.DB_USER+":" + dbConfig.DB_PASS + "@localhost:5432/"+dbConfig.DB_NAME+"?sslmode=disable")
-
-	if err != nil {
-		slog.Error("Create migration failed.", err)
-	}
-
-	if err := m.Up(); err != nil {
-		slog.Error("", err)
-	}
 }

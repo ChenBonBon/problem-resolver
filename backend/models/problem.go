@@ -4,7 +4,7 @@ type StatusType string
 type DifficultyType string
 
 type Example struct {
-	Id          string `json:"id"`
+	Id          int    `json:"id"`
 	Input       string `json:"input"`
 	Output      string `json:"output"`
 	Explanation string `json:"explanation"`
@@ -24,7 +24,7 @@ const (
 )
 
 type Problem struct {
-	Id          string         `json:"id"`
+	Id          int            `json:"id"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Difficulty  DifficultyType `json:"difficulty"`
@@ -35,7 +35,7 @@ type Problem struct {
 }
 
 type ProblemListItem struct {
-	Id         string         `json:"id"`
+	Id         int            `json:"id"`
 	Name       string         `json:"name"`
 	Status     StatusType     `json:"status"`
 	Answers    int            `json:"answers"`
@@ -44,7 +44,7 @@ type ProblemListItem struct {
 }
 
 type ProblemItem struct {
-	Id          string         `json:"id"`
+	Id          int            `json:"id"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Difficulty  DifficultyType `json:"difficulty"`

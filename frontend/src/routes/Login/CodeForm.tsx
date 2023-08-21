@@ -1,11 +1,14 @@
 import { Box, Flex, TextField } from "@radix-ui/themes";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToggle } from "react-use";
 import Button from "../../components/Button";
 import ErrorText from "../../components/ErrorText";
 import useLogin from "../../hooks/useLogin";
 
 export default function CodeForm() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     email: "",
     code: "",
@@ -62,7 +65,7 @@ export default function CodeForm() {
         {codeError && <ErrorText>请输入验证码</ErrorText>}
       </div>
       <Button
-        onClick={() => {
+        onClick={async () => {
           if (form.email.length === 0) {
             toggleEmailError(true);
             return;
@@ -77,7 +80,9 @@ export default function CodeForm() {
             toggleCodeError(false);
           }
 
-          loginWithCode(form.email, form.code);
+          await loginWithCode(form.email, form.code);
+          navigate(window.localStorage.getItem("redirect") ?? "/");
+          window.localStorage.removeItem("redirect");
         }}
       >
         登录
