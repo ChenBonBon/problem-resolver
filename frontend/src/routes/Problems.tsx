@@ -5,7 +5,6 @@ import useSWR from "swr";
 import Badge, { IBadge } from "../components/Badge";
 import Table, { TableCell } from "../components/Table";
 import { difficultyMap } from "../constants";
-import useLoading from "../hooks/useLoading";
 import useToast from "../hooks/useToast";
 import { IProblemListItem } from "../stores/problems";
 
@@ -51,8 +50,7 @@ export default function Problems() {
     data: IProblemListItem[];
   }>("/api/problems");
 
-  const { setType, setVisible, setDescription } = useToast();
-  const { setLoading } = useLoading();
+  const { showToast } = useToast();
 
   const TableBody = useMemo(() => {
     if (data && data.data) {
@@ -85,16 +83,10 @@ export default function Problems() {
   }, [data, navigate]);
 
   useEffect(() => {
-    if (isLoading) {
-      setLoading(isLoading);
-    }
-
     if (error) {
-      setType("error");
-      setDescription("Oops, 接口异常了");
-      setVisible(true);
+      showToast("error", "Oops, 接口异常了");
     }
-  }, [error, isLoading, setDescription, setLoading, setType, setVisible]);
+  }, [error, showToast]);
 
   return (
     <Table columns={columns} loading={isLoading}>

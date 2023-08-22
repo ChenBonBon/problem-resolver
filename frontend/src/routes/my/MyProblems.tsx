@@ -1,5 +1,5 @@
 import { Table as DefaultTable, Flex } from "@radix-ui/themes";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import Badge, { IBadge } from "../../components/Badge";
@@ -7,6 +7,7 @@ import Button from "../../components/Button";
 import LinkText from "../../components/LinkText";
 import Table, { TableCell, TableRowHeaderCell } from "../../components/Table";
 import { difficultyMap } from "../../constants";
+import useToast from "../../hooks/useToast";
 import { IUserProblem } from "../../stores/problems";
 
 const columns = [
@@ -50,6 +51,8 @@ export default function MyProblems() {
     data: IUserProblem[];
   }>("/api/users/problems");
 
+  const { showToast } = useToast();
+
   const TableBody = useMemo(() => {
     if (data && data.data) {
       return data.data.map((problem) => (
@@ -76,6 +79,12 @@ export default function MyProblems() {
 
     return null;
   }, [data]);
+
+  useEffect(() => {
+    if (error) {
+      showToast("error", "Oops, 接口异常了");
+    }
+  }, [error, showToast]);
 
   return (
     <div>
