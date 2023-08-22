@@ -21,9 +21,15 @@
 - 添加验证码登录
 - 添加账号密码登录
 - 未注册用户登录时自动注册
+- 添加登出
+- 添加路由 Token 认证
+- 添加自动刷新 Token 逻辑
+- 新增全局 toast 方法
+- request 方法添加 401 全局处理
 
 ### Changed
 
 - 将 Nav 组件设置为 sticky 布局
 - 统一网站 Link 组件为 radix-ui 的 Link 组件
 - 将 Toast 组件 z-index 设置为 9
+- 将所有 is 开头的 boolean 变量重命名

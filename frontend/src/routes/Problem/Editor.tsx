@@ -7,12 +7,12 @@ interface IEditor {
 }
 
 export default function Editor(props: IEditor) {
-  const { isSmallScreen } = useBreakpoint();
+  const { smallScreen } = useBreakpoint();
 
   return (
     <TextArea
       placeholder="请输入您的答案"
-      size={isSmallScreen ? "1" : "2"}
+      size={smallScreen ? "1" : "2"}
       value={props.value}
       onChange={(e) => {
         props.onChange(e.target.value);

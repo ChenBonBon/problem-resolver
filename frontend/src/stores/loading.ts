@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
 interface ILoadingStore {
-  isLoading: boolean;
-  setIsLoading: (newIsLoading: boolean) => void;
+  loading: boolean;
+  setLoading: (newLoading: boolean) => void;
 }
 
 const useLoadingStore = create<ILoadingStore>((set) => ({
-  isLoading: false,
-  setIsLoading: (newIsLoading) => set({ isLoading: newIsLoading }),
+  loading: false,
+  setLoading: (newLoading) => set({ loading: newLoading }),
 }));
 
 export default useLoadingStore;

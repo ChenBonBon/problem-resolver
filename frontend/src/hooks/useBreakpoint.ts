@@ -13,7 +13,7 @@ export default function useBreakpoint() {
 
   const breakpoint = useBreakpoint();
 
-  const isSmallScreen = smallBreakpoints.includes(breakpoint);
+  const smallScreen = smallBreakpoints.includes(breakpoint);
 
-  return { breakpoint, isSmallScreen };
+  return { breakpoint, smallScreen };
 }

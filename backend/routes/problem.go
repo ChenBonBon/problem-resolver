@@ -81,3 +81,44 @@ func AddProblem(ctx iris.Context) {
 		Data: lastInsertId,
 	})
 }
+
+func GetProblemsByUserId(ctx iris.Context) {
+	userId := ctx.Params().Get("id")
+	rows, err := db.DB.Query("SELECT id, name, difficulty FROM problems WHERE created_by = $1", userId)
+
+	if err != nil {
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Select Problem"))
+		return
+	}
+
+	var problems []models.ProblemListItem
+
+	for rows.Next() {
+		var id int
+		var name string
+		var difficulty models.DifficultyType
+
+		err = rows.Scan(&id, &name, &difficulty)
+
+		if err != nil {
+			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Scan Problem"))
+			return
+		}
+
+		problems = append(problems, models.ProblemListItem{
+			Id:         id,
+			Name:       name,
+			Status:     models.Unsolved,
+			Answers:    0,
+			PassRate:   0,
+			Difficulty: difficulty,
+		})
+
+	}
+
+	ctx.JSON(Success{
+		Code: 0,
+		Msg:  "success",
+		Data: problems,
+	})
+}

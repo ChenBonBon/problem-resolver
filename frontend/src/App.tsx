@@ -1,6 +1,6 @@
 import { Container, Flex } from "@radix-ui/themes";
 import { Route, Routes } from "react-router-dom";
-import { useTitle } from "react-use";
+import { useEffectOnce, useTitle } from "react-use";
 import styled from "styled-components";
 import logo from "./assets/logo.svg";
 import logoSmall from "./assets/logo_small.svg";
@@ -27,20 +27,24 @@ const Content = styled(Container)`
 function App() {
   useTitle(`${AppNameEn} - ${AppName}`);
 
-  const { isSmallScreen } = useBreakpoint();
+  const { smallScreen } = useBreakpoint();
   const { type, visible, description, setVisible } = useToast();
-  const { isLogin } = useLogin();
+  const { logined, getUser } = useLogin();
+
+  useEffectOnce(() => {
+    getUser();
+  });
 
   return (
     <Wrapper direction="column" justify="between">
       <Nav
         logo={{
-          src: isSmallScreen ? logoSmall : logo,
+          src: smallScreen ? logoSmall : logo,
           alt: AppName,
         }}
         menus={menus}
         avatar={
-          isLogin
+          logined
             ? {
                 img: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?&w=64&h=64&dpr=2&q=70&crop=focalpoint&fp-x=0.5&fp-y=0.3&fp-z=1&fit=crop",
                 username: "BonBon",

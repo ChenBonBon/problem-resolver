@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-export default function useCountdown(initial: number) {
+export default function useCountdown(initial: number, immediate?: boolean) {
   const current = new Date().getTime();
   const nextTime = useRef(current + 1000);
   const _remaining = useRef(initial);
@@ -24,7 +24,26 @@ export default function useCountdown(initial: number) {
     }
   };
 
-  timer.current = requestAnimationFrame(countdown);
+  function start() {
+    timer.current = requestAnimationFrame(countdown);
+  }
 
-  return remaining;
+  function stop() {
+    if (timer.current) {
+      cancelAnimationFrame(timer.current);
+      timer.current = undefined;
+    }
+  }
+
+  function restart() {
+    _remaining.current = initial;
+    setRemaining(initial);
+    start();
+  }
+
+  if (immediate) {
+    start();
+  }
+
+  return { remaining, start, stop, restart };
 }

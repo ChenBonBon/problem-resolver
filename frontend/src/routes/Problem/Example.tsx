@@ -8,10 +8,10 @@ export default function Example(
     index: number;
   }
 ) {
-  const { isSmallScreen } = useBreakpoint();
+  const { smallScreen } = useBreakpoint();
   const size = useMemo(() => {
-    return isSmallScreen ? "2" : "3";
-  }, [isSmallScreen]);
+    return smallScreen ? "2" : "3";
+  }, [smallScreen]);
 
   return (
     <div>

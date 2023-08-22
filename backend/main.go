@@ -28,12 +28,14 @@ func main() {
         return new(routes.UserClaims)
     })
 
-	tokenAPI := app.Party("/token")
-	tokenAPI.Use(verifyMiddleware)
-	tokenAPI.Get("", protected)
-	logoutAPI := app.Party("/logout")
-	logoutAPI.Use(verifyMiddleware)
-	logoutAPI.Post("/logout", routes.Logout)
+	app.OnErrorCode(iris.StatusUnauthorized, func(ctx iris.Context) {
+		err := ctx.GetErr()
+
+		ctx.StopWithProblem(iris.StatusUnauthorized, iris.NewProblem().Title("Token验证失败").Detail(err.Error()).Type("Unauthorized Problem"))
+	})
+
+	app.Get("/token", routes.RefreshToken).Use(verifyMiddleware)
+	app.Post("/logout", routes.Logout).Use(verifyMiddleware)
 
 	app.Get("/code", routes.GetCode)
 
@@ -50,22 +52,11 @@ func main() {
 		problem.Post("", routes.AddProblem)
 	}
 
-	user := app.Party("/user")
+	user := app.Party("/users")
 	user.Use(verifyMiddleware)
-
-	app.Listen(":8080")
+{
+	user.Get("/problems", routes.GetProblemsByUserId)
 }
 
-func protected(ctx iris.Context) {
-    token := jwt.GetVerifiedToken(ctx)
-
-    var claims routes.UserClaims
-    if err := token.Claims(&claims); err != nil {
-        ctx.StopWithError(iris.StatusInternalServerError, err)
-        return
-    }
-
-    userID := claims.UserID
-
-    ctx.Writef("user_id=%d\n", userID)
+	app.Listen(":8080")
 }

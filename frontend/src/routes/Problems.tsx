@@ -52,7 +52,7 @@ export default function Problems() {
   }>("/api/problems");
 
   const { setType, setVisible, setDescription } = useToast();
-  const { setIsLoading } = useLoading();
+  const { setLoading } = useLoading();
 
   const TableBody = useMemo(() => {
     if (data && data.data) {
@@ -86,7 +86,7 @@ export default function Problems() {
 
   useEffect(() => {
     if (isLoading) {
-      setIsLoading(isLoading);
+      setLoading(isLoading);
     }
 
     if (error) {
@@ -94,10 +94,10 @@ export default function Problems() {
       setDescription("Oops, 接口异常了");
       setVisible(true);
     }
-  }, [error, isLoading, setDescription, setIsLoading, setType, setVisible]);
+  }, [error, isLoading, setDescription, setLoading, setType, setVisible]);
 
   return (
-    <Table columns={columns} isLoading={isLoading}>
+    <Table columns={columns} loading={isLoading}>
       {TableBody}
     </Table>
   );

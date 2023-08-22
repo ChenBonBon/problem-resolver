@@ -31,7 +31,7 @@ const typeMap: { [key in IToastType]: Color } = {
 };
 
 export default function Toast(props: IToast) {
-  const remaining = useCountdown(props.duration ?? 3);
+  const { remaining } = useCountdown(props.duration ?? 3, true);
 
   useEffect(() => {
     if (remaining <= 0) {

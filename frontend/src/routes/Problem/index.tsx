@@ -27,8 +27,8 @@ export default function Problem() {
   }>(`/api/problems/${id}`);
 
   const { setType, setVisible, setDescription } = useToast();
-  const { setIsLoading } = useLoading();
-  const { isSmallScreen } = useBreakpoint();
+  const { setLoading } = useLoading();
+  const { smallScreen } = useBreakpoint();
   const problem = useProblemsStore((state) => state.problem);
   const answer = useProblemsStore((state) => state.answer);
   const setProblem = useProblemsStore((state) => state.setProblem);
@@ -48,7 +48,7 @@ export default function Problem() {
   }>(submitting ? `/api/answers?problem=${id}&label=official` : null);
 
   useEffect(() => {
-    setIsLoading(problemIsLoading);
+    setLoading(problemIsLoading);
 
     if (problemError) {
       setType("error");
@@ -66,14 +66,14 @@ export default function Problem() {
     problemIsLoading,
     setAnswer,
     setDescription,
-    setIsLoading,
+    setLoading,
     setProblem,
     setType,
     setVisible,
   ]);
 
   useEffect(() => {
-    setIsLoading(answerIsLoading);
+    setLoading(answerIsLoading);
 
     if (!answerIsLoading) {
       setSubmitting(false);
@@ -95,7 +95,7 @@ export default function Problem() {
     answerIsLoading,
     setAnswer,
     setDescription,
-    setIsLoading,
+    setLoading,
     setProblem,
     setType,
     setVisible,
@@ -141,7 +141,7 @@ export default function Problem() {
         </Tabs.Content>
       </Tabs.Root>
       <Flex direction="column" gap="3">
-        <Heading as="h3" size={isSmallScreen ? "2" : "3"}>
+        <Heading as="h3" size={smallScreen ? "2" : "3"}>
           答题区域
         </Heading>
         <Editor value={value} onChange={setValue} />

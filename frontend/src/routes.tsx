@@ -1,9 +1,15 @@
 import { lazy } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import useLogin from "./hooks/useLogin";
 
 interface IRoute {
   key: string;
   path: string;
   element: JSX.Element;
+}
+
+interface IAuthRoute {
+  children?: JSX.Element;
 }
 
 const Home = lazy(() => import("./routes/Home"));
@@ -12,6 +18,17 @@ const Learn = lazy(() => import("./routes/Learn"));
 const Problems = lazy(() => import("./routes/Problems"));
 const Problem = lazy(() => import("./routes/Problem"));
 const MyProblems = lazy(() => import("./routes/my/MyProblems"));
+
+function AuthRoute(props: IAuthRoute) {
+  const location = useLocation();
+  const { logined } = useLogin();
+
+  if (logined) {
+    return props.children;
+  }
+
+  return <Navigate to="/login" state={{ from: location }} />;
+}
 
 const routes: IRoute[] = [
   {
@@ -42,7 +59,11 @@ const routes: IRoute[] = [
   {
     key: "myProblems",
     path: "/my-problems",
-    element: <MyProblems />,
+    element: (
+      <AuthRoute>
+        <MyProblems />
+      </AuthRoute>
+    ),
   },
 ];
 

@@ -1,6 +1,7 @@
 import { Checkbox, Flex, Link, Text } from "@radix-ui/themes";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffectOnce } from "react-use";
 import { styled } from "styled-components";
 import logo from "../../assets/logo.svg";
 import Logo from "../../components/Logo";
@@ -20,6 +21,7 @@ export default function Login() {
   const navigate = useNavigate();
   const checked = useLoginStore((state) => state.checked);
   const setChecked = useLoginStore((state) => state.setChecked);
+  const setSended = useLoginStore((state) => state.setSended);
   const [loginType, setLoginType] = useState<"code" | "password">("code");
 
   const LoginForm = useMemo(() => {
@@ -68,6 +70,10 @@ export default function Login() {
       );
     }
   }, [loginType, navigate]);
+
+  useEffectOnce(() => {
+    setSended(false);
+  });
 
   return (
     <Flex justify="center" direction="column" align="center">

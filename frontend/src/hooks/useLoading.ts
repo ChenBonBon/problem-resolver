@@ -1,11 +1,11 @@
 import useLoadingStore from "../stores/loading";
 
 export default function useLoading() {
-  const isLoading = useLoadingStore((state) => state.isLoading);
-  const setIsLoading = useLoadingStore((state) => state.setIsLoading);
+  const loading = useLoadingStore((state) => state.loading);
+  const setLoading = useLoadingStore((state) => state.setLoading);
 
   return {
-    isLoading,
-    setIsLoading,
+    loading,
+    setLoading,
   };
 }

@@ -72,7 +72,6 @@ export default function Nav(props: INav) {
           <Button
             onClick={() => {
               navigate("/login");
-              window.localStorage.setItem("redirect", pathname);
             }}
           >
             登陆

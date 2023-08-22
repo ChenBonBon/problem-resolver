@@ -4,11 +4,11 @@ import useBreakpoint from "../../hooks/useBreakpoint";
 import { IAnswer } from "../../stores/problems";
 
 export default function Answer(props: IAnswer & { name: string }) {
-  const { isSmallScreen } = useBreakpoint();
+  const { smallScreen } = useBreakpoint();
 
   const size = useMemo(() => {
-    return isSmallScreen ? "3" : "4";
-  }, [isSmallScreen]);
+    return smallScreen ? "3" : "4";
+  }, [smallScreen]);
 
   return (
     <ScrollArea>
@@ -21,7 +21,7 @@ export default function Answer(props: IAnswer & { name: string }) {
         <Text>{props.author}</Text>
       </div>
       <Box py={size}>
-        <Text size={isSmallScreen ? "2" : "3"}>{props.answer}</Text>
+        <Text size={smallScreen ? "2" : "3"}>{props.answer}</Text>
       </Box>
     </ScrollArea>
   );

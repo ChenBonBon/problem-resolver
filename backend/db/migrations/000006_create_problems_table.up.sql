@@ -1,0 +1,1 @@
+ALTER TABLE problems ADD COLUMN difficulty VARCHAR (16) NOT NULL;

@@ -11,7 +11,7 @@ interface IColumn {
 interface ITable {
   columns: IColumn[];
   children?: ReactNode;
-  isLoading?: boolean;
+  loading?: boolean;
 }
 
 const Wrapper = styled.div`
@@ -55,9 +55,9 @@ export default function Table(props: ITable) {
         </DefaultTable.Header>
         <DefaultTable.Body>{props.children}</DefaultTable.Body>
       </DefaultTable.Root>
-      {props.isLoading && (
+      {props.loading && (
         <Wrapper>
-          <Loading visible={props.isLoading}>加载中</Loading>
+          <Loading visible={props.loading}>加载中</Loading>
         </Wrapper>
       )}
     </>

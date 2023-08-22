@@ -15,11 +15,11 @@ interface IDescription {
 }
 
 export default function Description(props: IDescription) {
-  const { isSmallScreen } = useBreakpoint();
+  const { smallScreen } = useBreakpoint();
 
   const size = useMemo(() => {
-    return isSmallScreen ? "3" : "4";
-  }, [isSmallScreen]);
+    return smallScreen ? "3" : "4";
+  }, [smallScreen]);
 
   return (
     <ScrollArea style={{ height: "calc(100vh - 88px - 56px - 40px)" }}>
@@ -32,7 +32,7 @@ export default function Description(props: IDescription) {
         <Badge map={difficultyMap} value={props.difficulty} />
       </div>
       <Box py={size}>
-        <Text size={isSmallScreen ? "2" : "3"}>{props.description}</Text>
+        <Text size={smallScreen ? "2" : "3"}>{props.description}</Text>
       </Box>
       <Flex direction="column" gap="5">
         {props.examples.map((example, index) => (

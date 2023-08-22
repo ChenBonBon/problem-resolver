@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"math/big"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -54,12 +55,8 @@ func LoginWithPassword(ctx iris.Context) {
 		return
 	}
 
-	sigKey := os.Getenv("TOKEN_SIG_KEY")
+	token, err := generateToken(userId)
 
-	signer := jwt.NewSigner(jwt.HS256, sigKey, 24*time.Hour)
-	claims := UserClaims{UserID: userId}
-
-	token, err := signer.Sign(claims)
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
 		return
@@ -123,12 +120,8 @@ func LoginWithCode(ctx iris.Context) {
 		}
 	}
 
-	sigKey := os.Getenv("TOKEN_SIG_KEY")
+	token, err := generateToken(userId)
 
-	signer := jwt.NewSigner(jwt.HS256, sigKey, 24*time.Hour)
-	claims := UserClaims{UserID: userId}
-
-	token, err := signer.Sign(claims)
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
 		return
@@ -141,14 +134,43 @@ func LoginWithCode(ctx iris.Context) {
 	})
 }
 
-func GetToken(ctx iris.Context) {
-	println("GetToken: ", jwt.Get(ctx))
-	claims := jwt.Get(ctx).(*UserClaims)
+func generateToken(userId int) (string, error) {
+	sigKey := os.Getenv("TOKEN_SIG_KEY")
+	expiredTime := os.Getenv("TOKEN_EXPIRED_TIME")
+	claims := UserClaims{UserID: userId}
 
-	println("claims: ", claims)
+	expiredArr := strings.Split(expiredTime, "*")
+	expired := 1
+
+	for _, value := range expiredArr {
+		
+		res, err := strconv.Atoi(value) 
+	
+		if err != nil {
+			return "", err
+		}
+	
+		expired *= res
+	}
+
+	token, err := jwt.Sign(jwt.HS256, []byte(sigKey), claims, jwt.MaxAge(time.Duration(expired)*time.Second))
+    
+	return string(token), err
+}
+
+func RefreshToken(ctx iris.Context) {
+    claims := jwt.Get(ctx).(*UserClaims)
+	newToken, err := generateToken(claims.UserID)
+
+	if err != nil {
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
+		return
+	}
+
 	ctx.JSON(Success{
 		Code: 0,
 		Msg:  "success",
+		Data: newToken,
 	})
 }
 

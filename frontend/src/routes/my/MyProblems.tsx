@@ -88,7 +88,7 @@ export default function MyProblems() {
           新增
         </Button>
       </Flex>
-      <Table columns={columns} isLoading={isLoading}>
+      <Table columns={columns} loading={isLoading}>
         {TableBody}
       </Table>
     </div>

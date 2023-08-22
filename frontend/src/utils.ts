@@ -1,3 +1,5 @@
+import useToastStore, { IToastType } from "./stores/toast";
+
 export function addNumberUnit(num: number) {
   const si = [
     { value: 1, symbol: "" },
@@ -14,6 +16,14 @@ export function addNumberUnit(num: number) {
   }
 
   return (num / si[i].value).toFixed(1).replace(rx, "$1") + si[i].symbol;
+}
+
+export function toast(type: IToastType, description: string) {
+  const { setType, setDescription, setVisible } = useToastStore.getState();
+
+  setType(type);
+  setDescription(description);
+  setVisible(true);
 }
 
 export async function request(
@@ -45,8 +55,28 @@ export async function request(
   try {
     const res = await fetch(url, options);
     if (res) {
-      const json = await res.json();
-      return json;
+      try {
+        const json = await res.json();
+        if (json) {
+          const { code, status, title } = json;
+          if (code === 0) {
+            return json;
+          }
+
+          if (status === 401) {
+            toast("error", title);
+            window.localStorage.removeItem("token");
+            return null;
+          } else {
+            toast("error", title);
+            return null;
+          }
+        }
+
+        return null;
+      } catch (error) {
+        console.error(error);
+      }
     }
   } catch (error) {
     console.error(error);

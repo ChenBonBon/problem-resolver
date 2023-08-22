@@ -1,12 +1,12 @@
-import { useEffect } from "react";
-import { useToggle } from "react-use";
 import useLoginStore from "../stores/login";
 import { request } from "../utils";
 import useToast from "./useToast";
 
 export default function useLogin() {
-  const [sended, toggleSended] = useToggle(false);
-  const [isLogin, toggleIsLogin] = useToggle(false);
+  const sended = useLoginStore((state) => state.sended);
+  const setSended = useLoginStore((state) => state.setSended);
+  const logined = useLoginStore((state) => state.logined);
+  const setLogined = useLoginStore((state) => state.setLogined);
   const checked = useLoginStore((state) => state.checked);
   const { setType, setVisible, setDescription } = useToast();
 
@@ -24,7 +24,7 @@ export default function useLogin() {
       setType("success");
       setDescription("验证码已发送");
       setVisible(true);
-      toggleSended(true);
+      setSended(true);
     }
   }
 
@@ -41,7 +41,7 @@ export default function useLogin() {
       password,
     });
     if (res.code === 0) {
-      toggleIsLogin(true);
+      setLogined(true);
       window.localStorage.setItem("token", res.data);
     }
   }
@@ -56,7 +56,7 @@ export default function useLogin() {
 
     const res = await request("/api/login/code", "POST", { email, code });
     if (res.code === 0) {
-      toggleIsLogin(true);
+      setLogined(true);
       window.localStorage.setItem("token", res.data);
     }
   }
@@ -64,23 +64,31 @@ export default function useLogin() {
   async function logout() {
     const res = await request("/api/logout", "POST");
     if (res.code === 0) {
-      toggleIsLogin(false);
+      setLogined(false);
       window.localStorage.removeItem("token");
     }
   }
 
-  useEffect(() => {
-    async function init() {
-      if (window.localStorage.getItem("token")) {
-        const res = await request("/api/token", "GET");
-        console.log(res);
-      } else {
-        toggleIsLogin(false);
+  async function getUser() {
+    if (window.localStorage.getItem("token")) {
+      const res = await request("/api/token", "GET");
+
+      if (res) {
+        setLogined(true);
+        window.localStorage.setItem("token", res.data);
       }
+    } else {
+      setLogined(false);
     }
+  }
 
-    init();
-  }, []);
-
-  return { sended, isLogin, getCode, loginWithPassword, loginWithCode, logout };
+  return {
+    sended,
+    logined,
+    getUser,
+    getCode,
+    loginWithPassword,
+    loginWithCode,
+    logout,
+  };
 }

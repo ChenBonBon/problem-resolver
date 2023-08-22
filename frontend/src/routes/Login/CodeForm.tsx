@@ -1,14 +1,13 @@
 import { Box, Flex, TextField } from "@radix-ui/themes";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useToggle } from "react-use";
 import Button from "../../components/Button";
 import ErrorText from "../../components/ErrorText";
+import useCountdown from "../../hooks/useCountdown";
 import useLogin from "../../hooks/useLogin";
+import useRedirect from "../../hooks/useRedirect";
 
 export default function CodeForm() {
-  const navigate = useNavigate();
-
   const [form, setForm] = useState({
     email: "",
     code: "",
@@ -17,7 +16,10 @@ export default function CodeForm() {
   const [emailError, toggleEmailError] = useToggle(false);
   const [codeError, toggleCodeError] = useToggle(false);
 
+  const { remaining, start, restart } = useCountdown(5);
+
   const { sended, loginWithCode, getCode } = useLogin();
+  const redirect = useRedirect();
 
   return (
     <>
@@ -49,6 +51,10 @@ export default function CodeForm() {
           </Box>
           <Button
             onClick={() => {
+              if (sended && remaining > 0) {
+                return;
+              }
+
               if (form.email.length === 0) {
                 toggleEmailError(true);
                 return;
@@ -57,9 +63,16 @@ export default function CodeForm() {
               }
 
               getCode(form.email);
+
+              if (sended) {
+                restart();
+              } else {
+                start();
+              }
             }}
+            disabled={form.email.length === 0}
           >
-            发送验证码
+            {sended && remaining > 0 ? `${remaining}秒` : "获取验证码"}
           </Button>
         </Flex>
         {codeError && <ErrorText>请输入验证码</ErrorText>}
@@ -81,8 +94,7 @@ export default function CodeForm() {
           }
 
           await loginWithCode(form.email, form.code);
-          navigate(window.localStorage.getItem("redirect") ?? "/");
-          window.localStorage.removeItem("redirect");
+          redirect();
         }}
       >
         登录
