@@ -59,7 +59,7 @@ func GetProblem(ctx iris.Context) {
 }
 
 func AddProblem(ctx iris.Context) {
-	var problem models.Problem
+	var problem models.ProblemForm
 
 	err := ctx.ReadJSON(&problem)
 

@@ -23,11 +23,15 @@ const (
 	Hard   DifficultyType = "hard"
 )
 
-type Problem struct {
-	Id          int            `json:"id"`
-	Name        string         `json:"name"`
+type ProblemForm struct {
+	Name        string         `json:"name" validate:"required"`
 	Description string         `json:"description"`
-	Difficulty  DifficultyType `json:"difficulty"`
+	Difficulty  DifficultyType `json:"difficulty" validate:"required,easy|medium|hard"`
+}
+
+type Problem struct {
+	ProblemForm
+	Id          int            `json:"id"`
 	CreatedAt   string         `json:"created_at"`
 	CreatedBy   string         `json:"created_by"`
 	UpdatedAt   string         `json:"updated_at"`

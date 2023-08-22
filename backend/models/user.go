@@ -6,13 +6,13 @@ import (
 )
 
 type LoginWithPassword struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type LoginWithCode struct {
-	Email string `json:"email"`
-	Code  string `json:"code"`
+	Email string `json:"email" validate:"required,email"`
+	Code  string `json:"code" validate:"required"`
 }
 
 type User struct {

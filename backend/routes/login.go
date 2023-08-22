@@ -1,8 +1,10 @@
 package routes
 
 import (
+	"backend/mail"
 	"backend/models"
 	"crypto/rand"
+	"log/slog"
 	"math/big"
 	"os"
 	"strconv"
@@ -31,6 +33,15 @@ func GetCode(ctx iris.Context) {
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("生成验证码失败").Detail(err.Error()).Type("Insert Problem"))
 	}
+
+	content ,err := os.ReadFile("mail/templates/code.html")
+
+	if err != nil {
+		slog.Error(err.Error())
+		panic(err)
+	}
+
+	mail.SendMail(email, "欢迎登录小镇做题家", strings.Replace(string(content), "{{ code }}", strings.Join(code, ""), -1))
 
 	ctx.JSON(Success{
 		Code: 0,
