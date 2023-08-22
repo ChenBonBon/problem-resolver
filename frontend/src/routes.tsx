@@ -9,7 +9,7 @@ interface IRoute {
 }
 
 interface IAuthRoute {
-  children?: JSX.Element;
+  children: JSX.Element;
 }
 
 const Home = lazy(() => import("./routes/Home"));
