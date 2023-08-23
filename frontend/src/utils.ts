@@ -29,7 +29,7 @@ export function toast(type: IToastType, description: string) {
 export async function request(
   url: string,
   method: RequestInit["method"],
-  body?: RequestInit['body']
+  body?: any
 ) {
   const options: RequestInit = {
     method,
