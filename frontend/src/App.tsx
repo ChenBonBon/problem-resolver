@@ -19,6 +19,7 @@ import routes from "./routes";
 const Wrapper = styled(Flex)`
   max-width: 1280px;
   padding: 0 24px;
+  margin: 0 auto;
   height: 100vh;
 `;
 
