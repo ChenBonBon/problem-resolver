@@ -17,6 +17,7 @@ import menus, { avatarMenus } from "./menus";
 import routes from "./routes";
 
 const Wrapper = styled(Flex)`
+  position: relative;
   max-width: 1280px;
   padding: 0 24px;
   margin: 0 auto;
