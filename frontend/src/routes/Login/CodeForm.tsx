@@ -71,13 +71,13 @@ export default function CodeForm() {
                 toggleEmailError(false);
               }
 
-              getCode(form.email);
-
               if (sended) {
                 restart();
               } else {
                 start();
               }
+
+              getCode(form.email);
             }}
             disabled={form.email.length === 0}
           >

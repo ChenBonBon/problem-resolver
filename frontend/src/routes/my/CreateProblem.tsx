@@ -4,11 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { useToggle } from "react-use";
 import { styled } from "styled-components";
 import useSWR from "swr";
+import BadgeGroup from "../../components/BadgeGroup";
 import Button from "../../components/Button";
 import FormItem from "../../components/FormItem";
+import { defaultProblemTypeMap, difficultyMap } from "../../constants";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import useLoading from "../../hooks/useLoading";
 import useToast from "../../hooks/useToast";
+
+interface ICreateProblemForm {
+  name: string;
+  description: string;
+  difficulty: string;
+  type: string[];
+}
 
 const Wrapper = styled.div<{ maxwidth?: number }>`
   max-width: ${(props) => props.maxwidth}px;
@@ -17,10 +26,11 @@ const Wrapper = styled.div<{ maxwidth?: number }>`
 export default function CreateProblem() {
   const navigate = useNavigate();
   const { smallScreen } = useBreakpoint();
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ICreateProblemForm>({
     name: "",
     description: "",
     difficulty: "",
+    type: [],
   });
 
   const [nameError, toggleNameError] = useToggle(false);
@@ -74,14 +84,7 @@ export default function CreateProblem() {
       showToast("success", "创建成功");
       navigate("/my-problems");
     }
-  }, [
-    data,
-    isLoading,
-    navigate,
-    setLoading,
-    showToast,
-    toggleSubmitting,
-  ]);
+  }, [data, isLoading, navigate, setLoading, showToast, toggleSubmitting]);
 
   return (
     <Wrapper maxwidth={maxwidth}>
@@ -120,12 +123,26 @@ export default function CreateProblem() {
             }}
           >
             <Select.Trigger placeholder="请选择难度" />
-            <Select.Content>
-              <Select.Item value="easy">简单</Select.Item>
-              <Select.Item value="medium">中等</Select.Item>
-              <Select.Item value="hard">困难</Select.Item>
+            <Select.Content position="popper">
+              {Object.keys(difficultyMap).map((key) => {
+                const { label } = difficultyMap[key];
+
+                return (
+                  <Select.Item key={key} value={key}>
+                    {label}
+                  </Select.Item>
+                );
+              })}
             </Select.Content>
           </Select.Root>
+        </FormItem>
+        <FormItem label="分类">
+          <BadgeGroup
+            items={defaultProblemTypeMap}
+            onChange={(value) => {
+              setForm({ ...form, type: value });
+            }}
+          />
         </FormItem>
         <Flex gap="5">
           <Button onClick={submit}>提交</Button>

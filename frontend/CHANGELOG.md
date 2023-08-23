@@ -55,3 +55,14 @@
 
 - 修改 useCountdown 为 useCountdownRaf
 - 移除 Table 组件的 loading 属性，改为使用全局 loading
+
+## [0.0.4] - 2023-08-23
+
+### Added
+
+- 新增 BadgeGroup 组件
+- 创建问题时增加分类选项
+
+### Changed
+
+- 将验证码倒计时开始时机更改为调用接口前

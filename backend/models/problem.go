@@ -3,6 +3,8 @@ package models
 import (
 	"backend/db"
 	"database/sql"
+
+	"github.com/lib/pq"
 )
 
 type StatusType string
@@ -33,6 +35,7 @@ type ProblemForm struct {
 	Name        string         `json:"name" validate:"required"`
 	Description string         `json:"description"`
 	Difficulty  DifficultyType `json:"difficulty" validate:"required,easy|medium|hard"`
+	Types pq.StringArray `json:"types"`
 }
 
 type Problem struct {
@@ -68,11 +71,11 @@ type UserProblemListItem struct {
 	Difficulty DifficultyType `json:"difficulty"`
 }
 
-func AddProblem(name string, description string, difficulty DifficultyType, createdBy int) error {
+func AddProblem(name string, description string, difficulty DifficultyType, types pq.StringArray, createdBy int) error {
 	var _ int64
 	var lastInsertId int64
 
-	err := db.DB.QueryRow("INSERT INTO problems(name, description, difficulty, created_by) VALUES($1, $2, $3, $4) RETURNING id", name, description, difficulty, createdBy).Scan(&lastInsertId)
+	err := db.DB.QueryRow("INSERT INTO problems(name, description, difficulty, types, created_by) VALUES($1, $2, $3, $4, $5) RETURNING id", name, description, difficulty, types, createdBy).Scan(&lastInsertId)
 
 	_ = lastInsertId
 

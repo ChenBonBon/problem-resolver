@@ -16,11 +16,12 @@ export default function useLogin() {
       return;
     }
 
+    setSended(true);
+
     const res = await request(`/api/code?email=${email}`, "GET");
 
     if (res.code === 0) {
       showToast("success", "验证码已发送");
-      setSended(true);
     }
   }
 

@@ -2,7 +2,7 @@ import { Badge as DefaultBadge } from "@radix-ui/themes";
 
 export interface IBadge {
   value: string;
-  map: { [key: string]: { label: string; color: Color } };
+  map: { [key: string]: { label: string; color?: Color } };
 }
 
 export default function Badge(props: IBadge) {

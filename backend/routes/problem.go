@@ -71,7 +71,7 @@ func AddProblem(ctx iris.Context) {
 		return
 	}
 
-	err = models.AddProblem(problem.Name, problem.Description, problem.Difficulty, userId)
+	err = models.AddProblem(problem.Name, problem.Description, problem.Difficulty, problem.Types, userId)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("创建问题失败").Detail(err.Error()).Type("Insert Problem"))

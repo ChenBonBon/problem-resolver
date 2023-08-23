@@ -8,3 +8,10 @@ export const difficultyMap: IBadge["map"] = {
   medium: { label: "中等", color: "orange" },
   hard: { label: "困难", color: "crimson" },
 };
+export const defaultProblemTypeMap: IBadge["map"] = {
+  frontend: { label: "前端" },
+  backend: { label: "后端" },
+  algorithm: { label: "算法" },
+  database: { label: "数据库" },
+  other: { label: "其他" },
+};
