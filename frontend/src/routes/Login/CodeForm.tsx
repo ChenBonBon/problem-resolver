@@ -16,7 +16,7 @@ export default function CodeForm() {
   const [emailError, toggleEmailError] = useToggle(false);
   const [codeError, toggleCodeError] = useToggle(false);
 
-  const { remaining, start, restart } = useCountdown(5);
+  const { remaining, start, restart } = useCountdown(60);
 
   const { sended, loginWithCode, getCode } = useLogin();
   const redirect = useRedirect();
