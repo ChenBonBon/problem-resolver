@@ -40,3 +40,13 @@
 
 - 添加发送邮件逻辑
 - 添加验证码邮件模版
+
+## [0.0.3] - 2023-08-23
+
+### Added
+
+- 新增使用 useInterval 实现的 useCountdown
+
+### Changed
+
+- 修改 useCountdown 为 useCountdownRaf
