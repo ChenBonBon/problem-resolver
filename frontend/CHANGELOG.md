@@ -46,7 +46,12 @@
 ### Added
 
 - 新增使用 useInterval 实现的 useCountdown
+- 新增创建问题
+- 新增 FormItem 组件
+- 新增 create_migrate.sh 和 migrate.sh
+- 添加全局 loading
 
 ### Changed
 
 - 修改 useCountdown 为 useCountdownRaf
+- 移除 Table 组件的 loading 属性，改为使用全局 loading

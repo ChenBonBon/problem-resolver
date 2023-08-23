@@ -8,31 +8,25 @@ export default function useLogin() {
   const logined = useLoginStore((state) => state.logined);
   const setLogined = useLoginStore((state) => state.setLogined);
   const checked = useLoginStore((state) => state.checked);
-  const { setType, setVisible, setDescription } = useToast();
+  const { showToast } = useToast();
 
   async function getCode(email: string) {
     if (!checked) {
-      setType("error");
-      setDescription("请先同意用户协议和隐私政策");
-      setVisible(true);
+      showToast("error", "请先同意用户协议和隐私政策");
       return;
     }
 
     const res = await request(`/api/code?email=${email}`, "GET");
 
     if (res.code === 0) {
-      setType("success");
-      setDescription("验证码已发送");
-      setVisible(true);
+      showToast("success", "验证码已发送");
       setSended(true);
     }
   }
 
   async function loginWithPassword(username: string, password: string) {
     if (!checked) {
-      setType("error");
-      setDescription("请先同意用户协议和隐私政策");
-      setVisible(true);
+      showToast("error", "请先同意用户协议和隐私政策");
       return;
     }
 
@@ -48,9 +42,7 @@ export default function useLogin() {
 
   async function loginWithCode(email: string, code: string) {
     if (!checked) {
-      setType("error");
-      setDescription("请先同意用户协议和隐私政策");
-      setVisible(true);
+      showToast("error", "请先同意用户协议和隐私政策");
       return;
     }
 

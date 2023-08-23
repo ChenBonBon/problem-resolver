@@ -2,7 +2,7 @@ import { Box, Flex, TextField } from "@radix-ui/themes";
 import { useState } from "react";
 import { useToggle } from "react-use";
 import Button from "../../components/Button";
-import ErrorText from "../../components/ErrorText";
+import FormItem from "../../components/FormItem";
 import useCountdown from "../../hooks/useCountdown";
 import useLogin from "../../hooks/useLogin";
 import useRedirect from "../../hooks/useRedirect";
@@ -23,7 +23,11 @@ export default function CodeForm() {
 
   return (
     <>
-      <div>
+      <FormItem
+        required
+        errorText="请输入邮箱"
+        status={emailError ? "error" : "success"}
+      >
         <TextField.Input
           placeholder="输入邮箱"
           onChange={(e) => {
@@ -34,20 +38,25 @@ export default function CodeForm() {
           }}
           readOnly={sended}
         />
-        {emailError && <ErrorText>请输入邮箱</ErrorText>}
-      </div>
+      </FormItem>
       <div>
         <Flex gap="3">
           <Box width="100%">
-            <TextField.Input
-              placeholder="验证码"
-              onChange={(e) => {
-                setForm({
-                  ...form,
-                  code: e.target.value,
-                });
-              }}
-            />
+            <FormItem
+              required
+              errorText="请输入验证码"
+              status={codeError ? "error" : "success"}
+            >
+              <TextField.Input
+                placeholder="验证码"
+                onChange={(e) => {
+                  setForm({
+                    ...form,
+                    code: e.target.value,
+                  });
+                }}
+              />
+            </FormItem>
           </Box>
           <Button
             onClick={() => {
@@ -75,7 +84,6 @@ export default function CodeForm() {
             {sended && remaining > 0 ? `${remaining}秒` : "获取验证码"}
           </Button>
         </Flex>
-        {codeError && <ErrorText>请输入验证码</ErrorText>}
       </div>
       <Button
         onClick={async () => {

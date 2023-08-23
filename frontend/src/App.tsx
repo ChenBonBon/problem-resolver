@@ -5,10 +5,12 @@ import styled from "styled-components";
 import logo from "./assets/logo.svg";
 import logoSmall from "./assets/logo_small.svg";
 import Footer from "./components/Footer.tsx";
+import Loading from "./components/Loading.tsx";
 import Nav from "./components/Nav";
 import Toast from "./components/Toast.tsx";
 import { AppName, AppNameEn } from "./constants";
 import useBreakpoint from "./hooks/useBreakpoint";
+import useLoading from "./hooks/useLoading.ts";
 import useLogin from "./hooks/useLogin.ts";
 import useToast from "./hooks/useToast.ts";
 import menus, { avatarMenus } from "./menus";
@@ -24,10 +26,24 @@ const Content = styled(Container)`
   padding-bottom: 56px;
 `;
 
+const LoadingWrapper = styled.div`
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background-color: rgba(204, 204, 204, 0.5);
+  pointer-events: none;
+  z-index: 10;
+  text-align: center;
+  padding-top: 35%;
+`;
+
 function App() {
   useTitle(`${AppNameEn} - ${AppName}`);
 
   const { smallScreen } = useBreakpoint();
+  const { loading } = useLoading();
   const { type, visible, description, setVisible } = useToast();
   const { logined, getUser } = useLogin();
 
@@ -53,7 +69,7 @@ function App() {
             : undefined
         }
       />
-      <Content style={{ background: "var(--gray-a2)" }}>
+      <Content style={{ background: "var(--gray-a2)" }} px="5" py="3">
         <Routes>
           {routes.map((route) => (
             <Route key={route.key} path={route.path} element={route.element} />
@@ -64,6 +80,11 @@ function App() {
         <Toast type={type} description={description} setVisible={setVisible} />
       )}
       <Footer />
+      {loading && (
+        <LoadingWrapper>
+          <Loading visible={true}>Loading...</Loading>
+        </LoadingWrapper>
+      )}
     </Wrapper>
   );
 }

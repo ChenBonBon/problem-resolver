@@ -18,6 +18,7 @@ const Learn = lazy(() => import("./routes/Learn"));
 const Problems = lazy(() => import("./routes/Problems"));
 const Problem = lazy(() => import("./routes/Problem"));
 const MyProblems = lazy(() => import("./routes/my/MyProblems"));
+const CreateProblem = lazy(() => import("./routes/my/CreateProblem"));
 
 function AuthRoute(props: IAuthRoute) {
   const location = useLocation();
@@ -62,6 +63,15 @@ const routes: IRoute[] = [
     element: (
       <AuthRoute>
         <MyProblems />
+      </AuthRoute>
+    ),
+  },
+  {
+    key: "myProblems",
+    path: "/problems/new",
+    element: (
+      <AuthRoute>
+        <CreateProblem />
       </AuthRoute>
     ),
   },

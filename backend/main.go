@@ -25,8 +25,8 @@ func main() {
 	verifier := jwt.NewVerifier(jwt.HS256, sigKey)
 	verifier.WithDefaultBlocklist()
 	verifyMiddleware := verifier.Verify(func() interface{} {
-        return new(routes.UserClaims)
-    })
+		return new(routes.UserClaims)
+	})
 
 	app.OnErrorCode(iris.StatusUnauthorized, func(ctx iris.Context) {
 		err := ctx.GetErr()
@@ -49,14 +49,14 @@ func main() {
 	{
 		problem.Get("", routes.GetProblems)
 		problem.Get("/{id}", routes.GetProblem)
-		problem.Post("", routes.AddProblem)
 	}
 
 	user := app.Party("/users")
 	user.Use(verifyMiddleware)
-{
-	user.Get("/problems", routes.GetProblemsByUserId)
-}
+	{
+		user.Get("/problems", routes.GetProblemsByUserId)
+		user.Post("/problems", routes.AddProblem)
+	}
 
 	app.Listen(":8080")
 }

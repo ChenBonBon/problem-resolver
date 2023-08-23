@@ -15,8 +15,16 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <SWRConfig
             value={{
-              fetcher: async (input) => {
-                return await request(input, "GET");
+              fetcher: async (
+                params:
+                  | string
+                  | [string, RequestInit["method"], RequestInit["body"]]
+              ) => {
+                if (typeof params === "string") {
+                  return await request(params, "GET");
+                }
+
+                return await request(...params);
               },
             }}
           >

@@ -1,17 +1,17 @@
 package routes
 
 import (
-	"backend/db"
 	"backend/models"
 
 	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/middleware/jwt"
 )
 
 func GetProblems(ctx iris.Context) {
-	rows, err := db.DB.Query("SELECT id, name, difficulty FROM problems")
+	rows, err := models.GetProblems()
 
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Select Problem"))
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("查询问题失败").Detail(err.Error()).Type("Select Problem"))
 		return
 	}
 
@@ -25,7 +25,7 @@ func GetProblems(ctx iris.Context) {
 		err = rows.Scan(&id, &name, &difficulty)
 
 		if err != nil {
-			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Scan Problem"))
+			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("查询问题失败").Detail(err.Error()).Type("Scan Problem"))
 			return
 		}
 
@@ -59,58 +59,61 @@ func GetProblem(ctx iris.Context) {
 }
 
 func AddProblem(ctx iris.Context) {
+	claims := jwt.Get(ctx).(*UserClaims)
+	userId := claims.UserID
+
 	var problem models.ProblemForm
 
 	err := ctx.ReadJSON(&problem)
 
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("Bad Request").Detail(err.Error()).Type("Param Problem"))
+		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("问题参数错误").Detail(err.Error()).Type("Param Problem"))
 		return
 	}
 
-	var lastInsertId int
-	err = db.DB.QueryRow("INSERT INTO problems(name, description, difficulty) VALUES($1, $2, $3) RETURNING id", problem.Name, problem.Description, problem.Difficulty).Scan(&lastInsertId)
+	err = models.AddProblem(problem.Name, problem.Description, problem.Difficulty, userId)
 
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Insert Problem"))
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("创建问题失败").Detail(err.Error()).Type("Insert Problem"))
+		return
 	}
 
 	ctx.JSON(Success{
 		Code: 0,
 		Msg:  "success",
-		Data: lastInsertId,
 	})
 }
 
 func GetProblemsByUserId(ctx iris.Context) {
-	userId := ctx.Params().Get("id")
-	rows, err := db.DB.Query("SELECT id, name, difficulty FROM problems WHERE created_by = $1", userId)
+	claims := jwt.Get(ctx).(*UserClaims)
+	userId := claims.UserID
+
+	rows, err := models.GetProblemsByUserId(userId)
 
 	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Select Problem"))
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("查询问题失败").Detail(err.Error()).Type("Select Problem"))
 		return
 	}
 
-	var problems []models.ProblemListItem
+	var problems []models.UserProblemListItem
 
 	for rows.Next() {
 		var id int
 		var name string
 		var difficulty models.DifficultyType
+		var status models.StatusType
 
-		err = rows.Scan(&id, &name, &difficulty)
+		err = rows.Scan(&id, &name, &difficulty, &status)
 
 		if err != nil {
-			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Internal Server Error").Detail(err.Error()).Type("Scan Problem"))
+			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("查询问题失败").Detail(err.Error()).Type("Scan Problem"))
 			return
 		}
 
-		problems = append(problems, models.ProblemListItem{
+		problems = append(problems, models.UserProblemListItem{
 			Id:         id,
 			Name:       name,
-			Status:     models.Unsolved,
-			Answers:    0,
-			PassRate:   0,
+			Status:     status,
 			Difficulty: difficulty,
 		})
 

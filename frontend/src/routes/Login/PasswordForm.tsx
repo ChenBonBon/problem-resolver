@@ -2,7 +2,7 @@ import { TextField } from "@radix-ui/themes";
 import { useState } from "react";
 import { useToggle } from "react-use";
 import Button from "../../components/Button";
-import ErrorText from "../../components/ErrorText";
+import FormItem from "../../components/FormItem";
 import useLogin from "../../hooks/useLogin";
 import useRedirect from "../../hooks/useRedirect";
 
@@ -19,7 +19,11 @@ export default function PasswordForm() {
 
   return (
     <>
-      <div>
+      <FormItem
+        required
+        errorText="请输入账号或邮箱"
+        status={usernameError ? "error" : "success"}
+      >
         <TextField.Input
           placeholder="账号/邮箱"
           onChange={(e) => {
@@ -29,9 +33,12 @@ export default function PasswordForm() {
             });
           }}
         />
-        {usernameError && <ErrorText>请输入账号或邮箱</ErrorText>}
-      </div>
-      <div>
+      </FormItem>
+      <FormItem
+        required
+        errorText="请输入密码"
+        status={passwordError ? "error" : "success"}
+      >
         <TextField.Input
           placeholder="输入密码"
           onChange={(e) => {
@@ -41,8 +48,7 @@ export default function PasswordForm() {
             });
           }}
         />
-        {passwordError && <ErrorText>请输入密码</ErrorText>}
-      </div>
+      </FormItem>
       <Button
         onClick={async () => {
           if (form.username.length === 0) {

@@ -1,6 +1,7 @@
 import { Flex, Grid, Heading, Tabs } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useToggle } from "react-use";
 import useSWR from "swr";
 import Button from "../../components/Button";
 import LinkText from "../../components/LinkText";
@@ -16,17 +17,13 @@ import Editor from "./Editor";
 export default function Problem() {
   const { id } = useParams();
 
-  const {
-    data: problemData,
-    error: problemError,
-    isLoading: problemIsLoading,
-  } = useSWR<{
+  const { data: problemData, isLoading: problemIsLoading } = useSWR<{
     code: number;
     msg: string;
     data: IProblem;
   }>(`/api/problems/${id}`);
 
-  const { setType, setVisible, setDescription } = useToast();
+  const { showToast } = useToast();
   const { setLoading } = useLoading();
   const { smallScreen } = useBreakpoint();
   const problem = useProblemsStore((state) => state.problem);
@@ -34,14 +31,10 @@ export default function Problem() {
   const setProblem = useProblemsStore((state) => state.setProblem);
   const setAnswer = useProblemsStore((state) => state.setAnswer);
 
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, toggleSubmitting] = useToggle(false);
   const [value, setValue] = useState("");
 
-  const {
-    data: answerData,
-    error: answerError,
-    isLoading: answerIsLoading,
-  } = useSWR<{
+  const { data: answerData, isLoading: answerIsLoading } = useSWR<{
     code: number;
     msg: string;
     data: IAnswer;
@@ -50,59 +43,44 @@ export default function Problem() {
   useEffect(() => {
     setLoading(problemIsLoading);
 
-    if (problemError) {
-      setType("error");
-      setDescription("Oops, 接口异常了");
-      setVisible(true);
-      setProblem(null);
-    }
-
     if (problemData) {
       setProblem(problemData.data);
+    } else {
+      setProblem(null);
     }
   }, [
     problemData,
-    problemError,
     problemIsLoading,
     setAnswer,
-    setDescription,
     setLoading,
     setProblem,
-    setType,
-    setVisible,
+    showToast,
   ]);
 
   useEffect(() => {
     setLoading(answerIsLoading);
 
     if (!answerIsLoading) {
-      setSubmitting(false);
-    }
-
-    if (answerError) {
-      setType("error");
-      setDescription("Oops, 接口异常了");
-      setVisible(true);
-      setAnswer(null);
+      toggleSubmitting(false);
     }
 
     if (answerData) {
       setAnswer(answerData.data);
+    } else {
+      setProblem(null);
     }
   }, [
     answerData,
-    answerError,
     answerIsLoading,
     setAnswer,
-    setDescription,
     setLoading,
     setProblem,
-    setType,
-    setVisible,
+    showToast,
+    toggleSubmitting,
   ]);
 
   const submit = async () => {
-    setSubmitting(true);
+    toggleSubmitting(true);
     try {
       const res = await fetch("/api/problems", {
         method: "POST",

@@ -1,0 +1,1 @@
+ALTER TABLE problems ADD COLUMN status VARCHAR(16);

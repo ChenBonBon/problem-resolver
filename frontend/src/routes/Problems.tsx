@@ -5,6 +5,7 @@ import useSWR from "swr";
 import Badge, { IBadge } from "../components/Badge";
 import Table, { TableCell } from "../components/Table";
 import { difficultyMap } from "../constants";
+import useLoading from "../hooks/useLoading";
 import useToast from "../hooks/useToast";
 import { IProblemListItem } from "../stores/problems";
 
@@ -44,13 +45,14 @@ const statusMap: IBadge["map"] = {
 export default function Problems() {
   const navigate = useNavigate();
 
-  const { data, error, isLoading } = useSWR<{
+  const { data, isLoading } = useSWR<{
     code: number;
     msg: string;
     data: IProblemListItem[];
   }>("/api/problems");
 
   const { showToast } = useToast();
+  const { setLoading } = useLoading();
 
   const TableBody = useMemo(() => {
     if (data && data.data) {
@@ -83,14 +85,8 @@ export default function Problems() {
   }, [data, navigate]);
 
   useEffect(() => {
-    if (error) {
-      showToast("error", "Oops, 接口异常了");
-    }
-  }, [error, showToast]);
+    setLoading(isLoading);
+  }, [isLoading, setLoading, showToast]);
 
-  return (
-    <Table columns={columns} loading={isLoading}>
-      {TableBody}
-    </Table>
-  );
+  return <Table columns={columns}>{TableBody}</Table>;
 }

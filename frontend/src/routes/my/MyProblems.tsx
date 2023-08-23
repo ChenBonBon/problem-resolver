@@ -1,4 +1,4 @@
-import { Table as DefaultTable, Flex } from "@radix-ui/themes";
+import { Box, Table as DefaultTable, Flex } from "@radix-ui/themes";
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
@@ -7,6 +7,7 @@ import Button from "../../components/Button";
 import LinkText from "../../components/LinkText";
 import Table, { TableCell, TableRowHeaderCell } from "../../components/Table";
 import { difficultyMap } from "../../constants";
+import useLoading from "../../hooks/useLoading";
 import useToast from "../../hooks/useToast";
 import { IUserProblem } from "../../stores/problems";
 
@@ -45,13 +46,14 @@ const statusMap: IBadge["map"] = {
 export default function MyProblems() {
   const navigate = useNavigate();
 
-  const { data, error, isLoading } = useSWR<{
+  const { data, isLoading } = useSWR<{
     code: number;
     msg: string;
     data: IUserProblem[];
   }>("/api/users/problems");
 
   const { showToast } = useToast();
+  const { setLoading } = useLoading();
 
   const TableBody = useMemo(() => {
     if (data && data.data) {
@@ -81,25 +83,21 @@ export default function MyProblems() {
   }, [data]);
 
   useEffect(() => {
-    if (error) {
-      showToast("error", "Oops, 接口异常了");
-    }
-  }, [error, showToast]);
+    setLoading(isLoading);
+  }, [isLoading, setLoading, showToast]);
 
   return (
-    <div>
+    <Box>
       <Flex justify="end">
         <Button
           onClick={() => {
-            navigate("/problem/new");
+            navigate("/problems/new");
           }}
         >
           新增
         </Button>
       </Flex>
-      <Table columns={columns} loading={isLoading}>
-        {TableBody}
-      </Table>
-    </div>
+      <Table columns={columns}>{TableBody}</Table>
+    </Box>
   );
 }
