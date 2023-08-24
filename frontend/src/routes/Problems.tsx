@@ -71,7 +71,7 @@ export default function Problems() {
               {problem.name}
             </Link>
           </TableCell>
-          <TableCell>{problem.group}</TableCell>
+          <TableCell>{problem.types}</TableCell>
           <TableCell>{problem.answers}</TableCell>
           <TableCell>{problem.passRate}</TableCell>
           <TableCell>
