@@ -20,7 +20,7 @@ export default function useLogin() {
 
     const res = await request(`/api/code?email=${email}`, "GET");
 
-    if (res.code === 0) {
+    if (res && res.code === 0) {
       showToast("success", "验证码已发送");
     }
   }
@@ -35,7 +35,7 @@ export default function useLogin() {
       username,
       password,
     });
-    if (res.code === 0) {
+    if (res && res.code === 0) {
       setLogined(true);
       window.localStorage.setItem("token", res.data);
     }
@@ -48,7 +48,7 @@ export default function useLogin() {
     }
 
     const res = await request("/api/login/code", "POST", { email, code });
-    if (res.code === 0) {
+    if (res && res.code === 0) {
       setLogined(true);
       window.localStorage.setItem("token", res.data);
     }
@@ -56,7 +56,7 @@ export default function useLogin() {
 
   async function logout() {
     const res = await request("/api/logout", "POST");
-    if (res.code === 0) {
+    if (res && res.code === 0) {
       setLogined(false);
       window.localStorage.removeItem("token");
     }
