@@ -1,5 +1,5 @@
+import request from "../requests";
 import useLoginStore from "../stores/login";
-import { request } from "../utils";
 import useToast from "./useToast";
 
 export default function useLogin() {

@@ -7,7 +7,7 @@ import { IExample, IProblemBase } from "../../stores/problems";
 import Example from "./Example";
 
 interface IDescription {
-  id: string;
+  id: number;
   name: string;
   difficulty: IProblemBase["difficulty"];
   description: string;

@@ -1,29 +1,16 @@
 import { Flex, Select, TextArea, TextField } from "@radix-ui/themes";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToggle } from "react-use";
+import { useEffectOnce, useToggle } from "react-use";
 import { styled } from "styled-components";
-import useSWR from "swr";
 import BadgeGroup from "../../components/BadgeGroup";
 import Button from "../../components/Button";
 import FormItem from "../../components/FormItem";
 import { difficultyMap } from "../../constants";
 import useBreakpoint from "../../hooks/useBreakpoint";
-import useLoading from "../../hooks/useLoading";
 import useToast from "../../hooks/useToast";
-
-type ProblemType = {
-  id: number;
-  name: string;
-};
-
-interface ICreateProblemForm {
-  name: string;
-  description: string;
-  answer: string;
-  difficulty: string;
-  types: number[];
-}
+import { addProblem, getProblemTypes } from "../../requests/problems";
+import useProblemsStore, { ICreateProblemForm } from "../../stores/problems";
 
 const Wrapper = styled.div<{ maxwidth?: number }>`
   max-width: ${(props) => props.maxwidth}px;
@@ -31,6 +18,8 @@ const Wrapper = styled.div<{ maxwidth?: number }>`
 
 export default function CreateProblem() {
   const navigate = useNavigate();
+  const problemTypes = useProblemsStore((state) => state.problemTypes);
+
   const { smallScreen } = useBreakpoint();
   const [form, setForm] = useState<ICreateProblemForm>({
     name: "",
@@ -42,21 +31,8 @@ export default function CreateProblem() {
 
   const [nameError, toggleNameError] = useToggle(false);
   const [difficultyError, toggleDifficultyError] = useToggle(false);
-  const [submitting, toggleSubmitting] = useToggle(false);
-
-  const { data: problemTypesData, isLoading: problemTypesIsLoading } = useSWR<{
-    code: number;
-    msg: string;
-    data: ProblemType[];
-  }>("/api/problems/types?status=enabled");
-
-  const { data: problemsData, isLoading: problemsIsLoading } = useSWR<{
-    code: number;
-    msg: string;
-  }>(submitting ? ["/api/users/problems", "POST", form] : null);
 
   const { showToast } = useToast();
-  const { setLoading } = useLoading();
 
   const maxwidth = useMemo(() => {
     return smallScreen ? 450 : 600;
@@ -76,36 +52,17 @@ export default function CreateProblem() {
       toggleDifficultyError(false);
     }
 
-    toggleSubmitting(true);
-  }
+    const res = await addProblem(form);
 
-  useEffect(() => {
-    setLoading(problemTypesIsLoading);
-
-    if (!problemTypesIsLoading) {
-      toggleSubmitting(false);
-    }
-  }, [problemTypesIsLoading, setLoading, toggleSubmitting]);
-
-  useEffect(() => {
-    setLoading(problemsIsLoading);
-
-    if (!problemsIsLoading) {
-      toggleSubmitting(false);
-    }
-
-    if (problemsData && problemsData.code === 0) {
+    if (res && res.code === 0) {
       showToast("success", "创建成功");
       navigate("/my-problems");
     }
-  }, [
-    problemsData,
-    problemsIsLoading,
-    navigate,
-    setLoading,
-    showToast,
-    toggleSubmitting,
-  ]);
+  }
+
+  useEffectOnce(() => {
+    getProblemTypes("enabled");
+  });
 
   return (
     <Wrapper maxwidth={maxwidth}>
@@ -160,7 +117,7 @@ export default function CreateProblem() {
         </FormItem>
         <FormItem label="分类">
           <BadgeGroup
-            items={problemTypesData?.data ?? []}
+            items={problemTypes}
             onChange={(value) => {
               setForm({ ...form, types: value });
             }}

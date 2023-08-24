@@ -1,13 +1,12 @@
 import { Table as DefaultTable, Link } from "@radix-ui/themes";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import useSWR from "swr";
+import { useEffectOnce } from "react-use";
 import Badge, { IBadge } from "../components/Badge";
 import Table, { TableCell } from "../components/Table";
 import { difficultyMap } from "../constants";
-import useLoading from "../hooks/useLoading";
-import useToast from "../hooks/useToast";
-import { IProblemListItem } from "../stores/problems";
+import { getProblems } from "../requests/problems";
+import useProblemsStore from "../stores/problems";
 
 const columns = [
   {
@@ -44,49 +43,37 @@ const statusMap: IBadge["map"] = {
 
 export default function Problems() {
   const navigate = useNavigate();
-
-  const { data, isLoading } = useSWR<{
-    code: number;
-    msg: string;
-    data: IProblemListItem[];
-  }>("/api/problems?status=enabled");
-
-  const { showToast } = useToast();
-  const { setLoading } = useLoading();
+  const problems = useProblemsStore((state) => state.problems);
 
   const TableBody = useMemo(() => {
-    if (data && data.data) {
-      return data.data.map((problem) => (
-        <DefaultTable.Row key={problem.id}>
-          <DefaultTable.RowHeaderCell>
-            <Badge map={statusMap} value={problem.status} />
-          </DefaultTable.RowHeaderCell>
-          <TableCell maxwidth={640}>
-            <Link
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(`/problems/${problem.id}`);
-              }}
-            >
-              {problem.name}
-            </Link>
-          </TableCell>
-          <TableCell>{problem.types}</TableCell>
-          <TableCell>{problem.answers}</TableCell>
-          <TableCell>{problem.passRate}</TableCell>
-          <TableCell>
-            <Badge map={difficultyMap} value={problem.difficulty} />
-          </TableCell>
-        </DefaultTable.Row>
-      ));
-    }
+    return problems.map((problem) => (
+      <DefaultTable.Row key={problem.id}>
+        <DefaultTable.RowHeaderCell>
+          <Badge map={statusMap} value={problem.status} />
+        </DefaultTable.RowHeaderCell>
+        <TableCell maxwidth={640}>
+          <Link
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(`/problems/${problem.id}`);
+            }}
+          >
+            {problem.name}
+          </Link>
+        </TableCell>
+        <TableCell>{problem.types}</TableCell>
+        <TableCell>{problem.answers}</TableCell>
+        <TableCell>{problem.passRate}</TableCell>
+        <TableCell>
+          <Badge map={difficultyMap} value={problem.difficulty} />
+        </TableCell>
+      </DefaultTable.Row>
+    ));
+  }, [navigate, problems]);
 
-    return null;
-  }, [data, navigate]);
-
-  useEffect(() => {
-    setLoading(isLoading);
-  }, [isLoading, setLoading, showToast]);
+  useEffectOnce(() => {
+    getProblems("enabled");
+  });
 
   return <Table columns={columns}>{TableBody}</Table>;
 }

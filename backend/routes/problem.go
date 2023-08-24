@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/models"
+	"strconv"
 
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/jwt"
@@ -64,7 +65,7 @@ func AddProblem(ctx iris.Context) {
 	claims := jwt.Get(ctx).(*UserClaims)
 	userId := claims.UserID
 
-	var problem models.CreateProblem
+	var problem models.CreateProblemItem
 
 	err := ctx.ReadJSON(&problem)
 
@@ -167,4 +168,36 @@ func GetProblemTypes(ctx iris.Context) {
 		Data: problemTypes,
 	})
 
+}
+
+func UpdateProblem(ctx iris.Context) {
+	claims := jwt.Get(ctx).(*UserClaims)
+	userId := claims.UserID
+	id, err := strconv.Atoi(ctx.Params().Get("id")) 
+
+	if err != nil {
+		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("问题 ID 错误").Detail(err.Error()).Type("Param Problem"))
+		return
+	}
+
+	var problem models.UpdateProblemItem
+
+	err = ctx.ReadJSON(&problem)
+
+	if err != nil {
+		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("问题参数错误").Detail(err.Error()).Type("Param Problem"))
+		return
+	}
+
+	err = models.UpdateProblem(id, problem, userId)
+
+	if err != nil {
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("更新问题失败").Detail(err.Error()).Type("Update Problem"))
+		return
+	}
+
+	ctx.JSON(Success{
+		Code: 0,
+		Msg:  "success",
+	})
 }

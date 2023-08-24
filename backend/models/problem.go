@@ -2,7 +2,9 @@ package models
 
 import (
 	"backend/db"
+	"backend/utils"
 	"database/sql"
+	"strings"
 
 	"github.com/lib/pq"
 )
@@ -36,7 +38,7 @@ const (
 	Hard   DifficultyType = "hard"
 )
 
-type CreateProblem struct {
+type CreateProblemItem struct {
 	Name        string         `json:"name" validate:"required"`
 	Description string         `json:"description"`
 	Answer      string         `json:"answer"`
@@ -44,8 +46,13 @@ type CreateProblem struct {
 	Types       pq.Int32Array `json:"types"`
 }
 
+type UpdateProblemItem struct {
+	CreateProblemItem
+	Status StatusType `json:"status"`
+}
+
 type Problem struct {
-	CreateProblem
+	CreateProblemItem
 	Id        int    `json:"id"`
 	CreatedAt string `json:"createdAt"`
 	CreatedBy string `json:"createdBy"`
@@ -141,4 +148,70 @@ func GetProblemTypes(status StatusType) (*sql.Rows, error) {
 
 
 	return rows, err
+}
+
+func UpdateProblem(id int, items UpdateProblemItem, userId int) error {
+	nameSet := []string{}
+	valueSet := []interface{}{}
+
+	if items.Name != "" {
+		nameSet = append(nameSet, "name = " + utils.AutoQueryPlaceholder(nameSet, 3))
+		valueSet = append(valueSet, items.Name)
+	}
+
+	if (items.Description != "") {
+		nameSet = append(nameSet, "description = " + utils.AutoQueryPlaceholder(nameSet, 3))
+		valueSet = append(valueSet, items.Description)
+	}
+
+	if (items.Answer != "") {
+		nameSet = append(nameSet, "answer = " + utils.AutoQueryPlaceholder(nameSet, 3))
+		valueSet = append(valueSet, items.Answer)
+	}
+
+	if (items.Difficulty != "") {
+		nameSet = append(nameSet, "difficulty = " + utils.AutoQueryPlaceholder(nameSet, 3))
+		valueSet = append(valueSet, items.Difficulty)
+	}
+
+	if (items.Status != "") {
+		nameSet = append(nameSet, "status = " + utils.AutoQueryPlaceholder(nameSet, 3))
+		valueSet = append(valueSet, items.Status)
+	}
+
+	if (items.Types != nil) {
+		nameSet = append(nameSet, "types = " + utils.AutoQueryPlaceholder(nameSet, 3))
+		valueSet = append(valueSet, items.Types)
+	}
+
+	sql := "UPDATE problems SET updated_by = $2, updated_at = NOW(), " + strings.Join(nameSet, ", ") + " WHERE id = $1"
+
+	println("sql: ", sql)
+
+	stmt, err := db.DB.Prepare(sql)
+
+	if err != nil {
+		return err
+	}
+
+	slice := []interface{}{id, userId}
+	slice = append(slice, valueSet...)
+
+	println("slice: ", slice)
+	res, err := stmt.Exec(slice...)
+
+	if err != nil {
+		return err
+	}
+
+	var _ int64
+	affected, err := res.RowsAffected()
+
+	_ = affected
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

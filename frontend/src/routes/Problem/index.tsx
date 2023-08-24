@@ -1,14 +1,12 @@
 import { Flex, Grid, Heading, Tabs } from "@radix-ui/themes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useToggle } from "react-use";
-import useSWR from "swr";
+import { useEffectOnce, useToggle } from "react-use";
 import Button from "../../components/Button";
 import LinkText from "../../components/LinkText";
 import useBreakpoint from "../../hooks/useBreakpoint";
-import useLoading from "../../hooks/useLoading";
-import useToast from "../../hooks/useToast";
-import useProblemsStore, { IAnswer, IProblem } from "../../stores/problems";
+import { getProblem } from "../../requests/problems";
+import useProblemsStore from "../../stores/problems";
 import { addNumberUnit } from "../../utils";
 import Answer from "./Answer";
 import Description from "./Description";
@@ -17,67 +15,18 @@ import Editor from "./Editor";
 export default function Problem() {
   const { id } = useParams();
 
-  const { data: problemData, isLoading: problemIsLoading } = useSWR<{
-    code: number;
-    msg: string;
-    data: IProblem;
-  }>(`/api/problems/${id}`);
-
-  const { showToast } = useToast();
-  const { setLoading } = useLoading();
   const { smallScreen } = useBreakpoint();
   const problem = useProblemsStore((state) => state.problem);
   const answer = useProblemsStore((state) => state.answer);
-  const setProblem = useProblemsStore((state) => state.setProblem);
-  const setAnswer = useProblemsStore((state) => state.setAnswer);
 
   const [submitting, toggleSubmitting] = useToggle(false);
   const [value, setValue] = useState("");
 
-  const { data: answerData, isLoading: answerIsLoading } = useSWR<{
-    code: number;
-    msg: string;
-    data: IAnswer;
-  }>(submitting ? `/api/answers?problem=${id}&label=official` : null);
-
-  useEffect(() => {
-    setLoading(problemIsLoading);
-
-    if (problemData) {
-      setProblem(problemData.data);
-    } else {
-      setProblem(null);
+  useEffectOnce(() => {
+    if (id) {
+      getProblem(parseInt(id, 10));
     }
-  }, [
-    problemData,
-    problemIsLoading,
-    setAnswer,
-    setLoading,
-    setProblem,
-    showToast,
-  ]);
-
-  useEffect(() => {
-    setLoading(answerIsLoading);
-
-    if (!answerIsLoading) {
-      toggleSubmitting(false);
-    }
-
-    if (answerData) {
-      setAnswer(answerData.data);
-    } else {
-      setProblem(null);
-    }
-  }, [
-    answerData,
-    answerIsLoading,
-    setAnswer,
-    setLoading,
-    setProblem,
-    showToast,
-    toggleSubmitting,
-  ]);
+  });
 
   const submit = async () => {
     toggleSubmitting(true);

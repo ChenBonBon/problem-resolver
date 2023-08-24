@@ -57,6 +57,7 @@ func main() {
 	{
 		user.Get("/problems", routes.GetProblemsByUserId)
 		user.Post("/problems", routes.AddProblem)
+		user.Put("/problems/:id", routes.UpdateProblem)
 	}
 
 	app.Listen(":8080")

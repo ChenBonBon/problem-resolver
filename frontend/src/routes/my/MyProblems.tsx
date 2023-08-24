@@ -1,15 +1,15 @@
 import { Box, Table as DefaultTable, Flex } from "@radix-ui/themes";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import useSWR from "swr";
+import { useEffectOnce } from "react-use";
 import Badge, { IBadge } from "../../components/Badge";
 import Button from "../../components/Button";
 import LinkText from "../../components/LinkText";
 import Table, { TableCell, TableRowHeaderCell } from "../../components/Table";
 import { difficultyMap } from "../../constants";
-import useLoading from "../../hooks/useLoading";
 import useToast from "../../hooks/useToast";
-import { IUserProblem } from "../../stores/problems";
+import { getUserProblems, updateProblem } from "../../requests/problems";
+import useProblemsStore from "../../stores/problems";
 import { date } from "../../utils";
 
 const columns = [
@@ -47,45 +47,71 @@ const statusMap: IBadge["map"] = {
 export default function MyProblems() {
   const navigate = useNavigate();
 
-  const { data, isLoading } = useSWR<{
-    code: number;
-    msg: string;
-    data: IUserProblem[];
-  }>("/api/users/problems");
+  const userProblems = useProblemsStore((state) => state.userProblems);
 
   const { showToast } = useToast();
-  const { setLoading } = useLoading();
+
+  async function updateStatus(id: number, status: Status) {
+    const res = await updateProblem(id, {
+      status,
+    });
+
+    if (res && res.code === 0) {
+      showToast("success", "操作成功");
+      getUserProblems();
+    }
+  }
+
+  async function enable(id: number) {
+    await updateStatus(id, "enabled");
+  }
+
+  async function disable(id: number) {
+    await updateStatus(id, "disabled");
+  }
 
   const TableBody = useMemo(() => {
-    if (data && data.data) {
-      return data.data.map((problem) => (
-        <DefaultTable.Row key={problem.id}>
-          <TableRowHeaderCell maxwidth={640}>{problem.name}</TableRowHeaderCell>
-          <TableCell>{problem.types.join(" ")}</TableCell>
-          <TableCell>
-            <Badge map={difficultyMap} value={problem.difficulty} />
-          </TableCell>
-          <TableCell>
-            <Badge map={statusMap} value={problem.status} />
-          </TableCell>
-          <TableCell>{date(problem.createdAt)}</TableCell>
-          <TableCell>
-            <Flex gap="3">
-              <LinkText>编辑</LinkText>
-              <LinkText>启用</LinkText>
-              <LinkText>禁用</LinkText>
-            </Flex>
-          </TableCell>
-        </DefaultTable.Row>
-      ));
-    }
+    return userProblems.map((problem) => (
+      <DefaultTable.Row key={problem.id}>
+        <TableRowHeaderCell maxwidth={640}>{problem.name}</TableRowHeaderCell>
+        <TableCell>{problem.types.join(" ")}</TableCell>
+        <TableCell>
+          <Badge map={difficultyMap} value={problem.difficulty} />
+        </TableCell>
+        <TableCell>
+          <Badge map={statusMap} value={problem.status} />
+        </TableCell>
+        <TableCell>{date(problem.createdAt)}</TableCell>
+        <TableCell>
+          <Flex gap="3">
+            <LinkText>编辑</LinkText>
+            {problem.status === "disabled" && (
+              <LinkText
+                onClick={() => {
+                  enable(problem.id);
+                }}
+              >
+                启用
+              </LinkText>
+            )}
+            {problem.status === "enabled" && (
+              <LinkText
+                onClick={() => {
+                  disable(problem.id);
+                }}
+              >
+                禁用
+              </LinkText>
+            )}
+          </Flex>
+        </TableCell>
+      </DefaultTable.Row>
+    ));
+  }, [userProblems]);
 
-    return null;
-  }, [data]);
-
-  useEffect(() => {
-    setLoading(isLoading);
-  }, [isLoading, setLoading, showToast]);
+  useEffectOnce(() => {
+    getUserProblems();
+  });
 
   return (
     <Box>

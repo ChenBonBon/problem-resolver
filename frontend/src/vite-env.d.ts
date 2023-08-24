@@ -29,3 +29,5 @@ type Color =
   | "gold"
   | "bronze"
   | "gray";
+
+type Status = "enabled" | "disabled";

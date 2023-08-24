@@ -27,63 +27,6 @@ export function toast(type: IToastType, description: string) {
   setVisible(true);
 }
 
-export async function request(
-  url: string,
-  method: RequestInit["method"],
-  body?: any
-) {
-  const options: RequestInit = {
-    method,
-    credentials: "omit",
-  };
-
-  const headers: RequestInit["headers"] = {
-    "Content-Type": "application/json",
-  };
-
-  const token = window.localStorage.getItem("token");
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  options.headers = headers;
-
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
-
-  try {
-    const res = await fetch(url, options);
-    if (res) {
-      try {
-        const json = await res.json();
-        if (json) {
-          const { code, status, title } = json;
-          if (code === 0) {
-            return json;
-          }
-
-          if (status === 401) {
-            toast("error", title);
-            window.localStorage.removeItem("token");
-            return null;
-          } else {
-            toast("error", title);
-            return null;
-          }
-        }
-
-        return null;
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 export function date(value: string) {
   return dayjs(value).format("YYYY-MM-DD HH:mm");
 }
