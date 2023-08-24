@@ -49,6 +49,7 @@ func main() {
 	{
 		problem.Get("", routes.GetProblems)
 		problem.Get("/{id}", routes.GetProblem)
+		problem.Get("/types", routes.GetProblemTypes)
 	}
 
 	user := app.Party("/users")

@@ -3,7 +3,7 @@ import { create } from "zustand";
 export interface IProblemBase {
   id: string;
   name: string;
-  group: string;
+  types: string[];
   difficulty: "easy" | "medium" | "hard";
 }
 

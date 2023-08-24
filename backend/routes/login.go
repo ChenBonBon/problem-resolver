@@ -34,7 +34,7 @@ func GetCode(ctx iris.Context) {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("生成验证码失败").Detail(err.Error()).Type("Insert Problem"))
 	}
 
-	content ,err := os.ReadFile("mail/templates/code.html")
+	content, err := os.ReadFile("mail/templates/code.html")
 
 	if err != nil {
 		slog.Error(err.Error())
@@ -154,23 +154,23 @@ func generateToken(userId int) (string, error) {
 	expired := 1
 
 	for _, value := range expiredArr {
-		
-		res, err := strconv.Atoi(value) 
-	
+
+		res, err := strconv.Atoi(value)
+
 		if err != nil {
 			return "", err
 		}
-	
+
 		expired *= res
 	}
 
 	token, err := jwt.Sign(jwt.HS256, []byte(sigKey), claims, jwt.MaxAge(time.Duration(expired)*time.Second))
-    
+
 	return string(token), err
 }
 
 func RefreshToken(ctx iris.Context) {
-    claims := jwt.Get(ctx).(*UserClaims)
+	claims := jwt.Get(ctx).(*UserClaims)
 	newToken, err := generateToken(claims.UserID)
 
 	if err != nil {

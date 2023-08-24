@@ -35,7 +35,6 @@ func ConnectDB() {
 
 	db, err := openDB(dbConfig)
 
-
 	if err != nil {
 		slog.Error("Open database failed.", err)
 		panic(err)

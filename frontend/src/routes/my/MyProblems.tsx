@@ -10,6 +10,7 @@ import { difficultyMap } from "../../constants";
 import useLoading from "../../hooks/useLoading";
 import useToast from "../../hooks/useToast";
 import { IUserProblem } from "../../stores/problems";
+import { date } from "../../utils";
 
 const columns = [
   {
@@ -60,14 +61,14 @@ export default function MyProblems() {
       return data.data.map((problem) => (
         <DefaultTable.Row key={problem.id}>
           <TableRowHeaderCell maxwidth={640}>{problem.name}</TableRowHeaderCell>
-          <TableCell>{problem.group}</TableCell>
+          <TableCell>{problem.types.join(" ")}</TableCell>
           <TableCell>
             <Badge map={difficultyMap} value={problem.difficulty} />
           </TableCell>
           <TableCell>
             <Badge map={statusMap} value={problem.status} />
           </TableCell>
-          <TableCell>{problem.createdAt}</TableCell>
+          <TableCell>{date(problem.createdAt)}</TableCell>
           <TableCell>
             <Flex gap="3">
               <LinkText>编辑</LinkText>

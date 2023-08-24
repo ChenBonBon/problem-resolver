@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import useToastStore, { IToastType } from "./stores/toast";
 
 export function addNumberUnit(num: number) {
@@ -81,4 +82,8 @@ export async function request(
   } catch (error) {
     console.error(error);
   }
+}
+
+export function date(value: string) {
+  return dayjs(value).format("YYYY-MM-DD HH:mm");
 }

@@ -5,10 +5,13 @@ import (
 
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/jwt"
+	"github.com/lib/pq"
 )
 
 func GetProblems(ctx iris.Context) {
-	rows, err := models.GetProblems()
+	status := ctx.URLParam("status")
+
+	rows, err := models.GetProblems(models.StatusType(status))
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("查询问题失败").Detail(err.Error()).Type("Select Problem"))
@@ -50,7 +53,6 @@ func GetProblems(ctx iris.Context) {
 func GetProblem(ctx iris.Context) {
 	// id, err := strconv.Atoi(ctx.Params().Get("id"))
 
-
 	// ctx.JSON(Success{
 	// 	Code: 0,
 	// 	Msg:  "success",
@@ -62,7 +64,7 @@ func AddProblem(ctx iris.Context) {
 	claims := jwt.Get(ctx).(*UserClaims)
 	userId := claims.UserID
 
-	var problem models.ProblemForm
+	var problem models.CreateProblem
 
 	err := ctx.ReadJSON(&problem)
 
@@ -71,7 +73,7 @@ func AddProblem(ctx iris.Context) {
 		return
 	}
 
-	err = models.AddProblem(problem.Name, problem.Description, problem.Difficulty, problem.Types, userId)
+	err = models.AddProblem(problem.Name, problem.Description, problem.Answer, problem.Difficulty, problem.Types, userId)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("创建问题失败").Detail(err.Error()).Type("Insert Problem"))
@@ -100,10 +102,12 @@ func GetProblemsByUserId(ctx iris.Context) {
 	for rows.Next() {
 		var id int
 		var name string
+		var types pq.StringArray
 		var difficulty models.DifficultyType
 		var status models.StatusType
+		var createdAt string
 
-		err = rows.Scan(&id, &name, &difficulty, &status)
+		err = rows.Scan(&id, &name, &types, &difficulty, &status, &createdAt)
 
 		if err != nil {
 			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("查询问题失败").Detail(err.Error()).Type("Scan Problem"))
@@ -113,8 +117,10 @@ func GetProblemsByUserId(ctx iris.Context) {
 		problems = append(problems, models.UserProblemListItem{
 			Id:         id,
 			Name:       name,
+			Types:      types,
 			Status:     status,
 			Difficulty: difficulty,
+			CreatedAt: createdAt,
 		})
 
 	}
@@ -124,4 +130,41 @@ func GetProblemsByUserId(ctx iris.Context) {
 		Msg:  "success",
 		Data: problems,
 	})
+}
+
+func GetProblemTypes(ctx iris.Context) {
+	status := ctx.URLParam("status")
+
+	rows, err := models.GetProblemTypes(models.StatusType(status))
+
+	if err != nil {
+		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("查询问题失败").Detail(err.Error()).Type("Select Problem"))
+		return
+	}
+
+	var problemTypes []models.ProblemTypeListItem
+
+	for rows.Next() {
+		var id int
+		var name string
+
+		err = rows.Scan(&id, &name)
+
+		if err != nil {
+			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("查询问题失败").Detail(err.Error()).Type("Scan Problem"))
+			return
+		}
+
+		problemTypes = append(problemTypes, models.ProblemTypeListItem{
+			Id:     id,
+			Name:   name,
+		})
+	}
+
+	ctx.JSON(Success{
+		Code: 0,
+		Msg:  "success",
+		Data: problemTypes,
+	})
+
 }

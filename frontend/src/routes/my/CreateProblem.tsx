@@ -7,16 +7,22 @@ import useSWR from "swr";
 import BadgeGroup from "../../components/BadgeGroup";
 import Button from "../../components/Button";
 import FormItem from "../../components/FormItem";
-import { defaultProblemTypeMap, difficultyMap } from "../../constants";
+import { difficultyMap } from "../../constants";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import useLoading from "../../hooks/useLoading";
 import useToast from "../../hooks/useToast";
 
+type ProblemType = {
+  id: number;
+  name: string;
+};
+
 interface ICreateProblemForm {
   name: string;
   description: string;
+  answer: string;
   difficulty: string;
-  type: string[];
+  types: number[];
 }
 
 const Wrapper = styled.div<{ maxwidth?: number }>`
@@ -29,16 +35,22 @@ export default function CreateProblem() {
   const [form, setForm] = useState<ICreateProblemForm>({
     name: "",
     description: "",
+    answer: "",
     difficulty: "",
-    type: [],
+    types: [],
   });
 
   const [nameError, toggleNameError] = useToggle(false);
-  const [descriptionError, toggleDescriptionError] = useToggle(false);
   const [difficultyError, toggleDifficultyError] = useToggle(false);
   const [submitting, toggleSubmitting] = useToggle(false);
 
-  const { data, isLoading } = useSWR<{
+  const { data: problemTypesData, isLoading: problemTypesIsLoading } = useSWR<{
+    code: number;
+    msg: string;
+    data: ProblemType[];
+  }>("/api/problems/types?status=enabled");
+
+  const { data: problemsData, isLoading: problemsIsLoading } = useSWR<{
     code: number;
     msg: string;
   }>(submitting ? ["/api/users/problems", "POST", form] : null);
@@ -57,12 +69,6 @@ export default function CreateProblem() {
     } else {
       toggleNameError(false);
     }
-    if (form.description.length === 0) {
-      toggleDescriptionError(true);
-      return;
-    } else {
-      toggleDescriptionError(false);
-    }
     if (form.difficulty.length === 0) {
       toggleDifficultyError(true);
       return;
@@ -74,17 +80,32 @@ export default function CreateProblem() {
   }
 
   useEffect(() => {
-    setLoading(isLoading);
+    setLoading(problemTypesIsLoading);
 
-    if (!isLoading) {
+    if (!problemTypesIsLoading) {
+      toggleSubmitting(false);
+    }
+  }, [problemTypesIsLoading, setLoading, toggleSubmitting]);
+
+  useEffect(() => {
+    setLoading(problemsIsLoading);
+
+    if (!problemsIsLoading) {
       toggleSubmitting(false);
     }
 
-    if (data && data.code === 0) {
+    if (problemsData && problemsData.code === 0) {
       showToast("success", "创建成功");
       navigate("/my-problems");
     }
-  }, [data, isLoading, navigate, setLoading, showToast, toggleSubmitting]);
+  }, [
+    problemsData,
+    problemsIsLoading,
+    navigate,
+    setLoading,
+    showToast,
+    toggleSubmitting,
+  ]);
 
   return (
     <Wrapper maxwidth={maxwidth}>
@@ -100,15 +121,16 @@ export default function CreateProblem() {
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
         </FormItem>
-        <FormItem
-          label="描述"
-          required
-          errorText="请输入问题描述"
-          status={descriptionError ? "error" : "success"}
-        >
+        <FormItem label="描述">
           <TextArea
             placeholder="请输入问题描述"
             onChange={(e) => setForm({ ...form, description: e.target.value })}
+          />
+        </FormItem>
+        <FormItem label="题解">
+          <TextArea
+            placeholder="请输入官方题解"
+            onChange={(e) => setForm({ ...form, answer: e.target.value })}
           />
         </FormItem>
         <FormItem
@@ -138,9 +160,9 @@ export default function CreateProblem() {
         </FormItem>
         <FormItem label="分类">
           <BadgeGroup
-            items={defaultProblemTypeMap}
+            items={problemTypesData?.data ?? []}
             onChange={(value) => {
-              setForm({ ...form, type: value });
+              setForm({ ...form, types: value });
             }}
           />
         </FormItem>

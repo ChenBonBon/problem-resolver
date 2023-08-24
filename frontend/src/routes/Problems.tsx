@@ -49,7 +49,7 @@ export default function Problems() {
     code: number;
     msg: string;
     data: IProblemListItem[];
-  }>("/api/problems");
+  }>("/api/problems?status=enabled");
 
   const { showToast } = useToast();
   const { setLoading } = useLoading();

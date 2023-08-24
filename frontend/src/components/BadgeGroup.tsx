@@ -1,11 +1,15 @@
 import { Badge as DefaultBadge, Flex } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { styled } from "styled-components";
-import { IBadge } from "./Badge";
+
+type BadgeGroupItem = {
+  id: number;
+  name: string;
+};
 
 interface IBadgeGroup {
-  items: IBadge["map"];
-  onChange?: (value: string[]) => void;
+  items: BadgeGroupItem[];
+  onChange?: (value: number[]) => void;
 }
 
 const Badge = styled(DefaultBadge)`
@@ -13,35 +17,34 @@ const Badge = styled(DefaultBadge)`
 `;
 
 export default function BadgeGroup(props: IBadgeGroup) {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
 
   useEffect(() => {
     if (props.onChange) {
       props.onChange(selected);
     }
-  }, [selected, props.onChange]);
+  }, [selected, props]);
 
   return (
     <Flex gap="2" align="center">
-      {Object.keys(props.items).map((key) => {
-        const { label, color } = props.items[key];
+      {props.items.map((item) => {
+        const { id, name } = item;
         return (
           <Badge
-            key={key}
-            variant={selected.includes(key) ? "solid" : "outline"}
-            color={color}
+            key={id}
+            variant={selected.includes(id) ? "solid" : "outline"}
             onClick={() => {
-              const index = selected.indexOf(key);
+              const index = selected.indexOf(id);
               if (index > -1) {
                 selected.splice(index, 1);
               } else {
-                selected.push(key);
+                selected.push(id);
               }
 
               setSelected([...selected]);
             }}
           >
-            {label}
+            {name}
           </Badge>
         );
       })}
