@@ -19,11 +19,11 @@ func GetProblems(ctx iris.Context) {
 		return
 	}
 
-	var problems []models.ProblemListItem
+	problems := []models.ProblemListItem{}
 
 	for rows.Next() {
-		var id int
-		var name string
+		id := 0
+		name := ""
 		var difficulty models.DifficultyType
 
 		err = rows.Scan(&id, &name, &difficulty)
@@ -98,15 +98,15 @@ func GetProblemsByUserId(ctx iris.Context) {
 		return
 	}
 
-	var problems []models.UserProblemListItem
+	problems := []models.UserProblemListItem{}
 
 	for rows.Next() {
-		var id int
-		var name string
-		var types pq.StringArray
+		id := 0
+		name := "" 
+		types := pq.StringArray{}
 		var difficulty models.DifficultyType
 		var status models.StatusType
-		var createdAt string
+		createdAt := ""
 
 		err = rows.Scan(&id, &name, &types, &difficulty, &status, &createdAt)
 
@@ -143,11 +143,11 @@ func GetProblemTypes(ctx iris.Context) {
 		return
 	}
 
-	var problemTypes []models.ProblemTypeListItem
+	problemTypes := []models.ProblemTypeListItem{}
 
 	for rows.Next() {
-		var id int
-		var name string
+		id := 0
+		name := ""
 
 		err = rows.Scan(&id, &name)
 

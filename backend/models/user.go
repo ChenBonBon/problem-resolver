@@ -31,7 +31,7 @@ type UserCode struct {
 
 func AddCode(email string, code string) error {
 	var _ int64
-	var lastInsertId int64
+	lastInsertId := 0
 	err := db.DB.QueryRow("INSERT INTO user_codes(email, code) VALUES($1, $2) RETURNING id", email, code).Scan(&lastInsertId)
 
 	_ = lastInsertId
@@ -40,14 +40,14 @@ func AddCode(email string, code string) error {
 }
 
 func GetUserByEmail(email string) (int, error) {
-	var userId int
+	userId := 0
 	err := db.DB.QueryRow("SELECT id FROM users WHERE email = $1", email).Scan(&userId)
 
 	return userId, err
 }
 
 func GetUserByPassword(username string, password string) (int, error) {
-	var userId int
+	userId := 0
 	err := db.DB.QueryRow("SELECT id FROM users WHERE username = $1 AND password = $2", username, password).Scan(&userId)
 
 	return userId, err
@@ -87,14 +87,14 @@ func UpdateCodeStatus(email string, code string) error {
 }
 
 func AddUserByCode(email string, username string) (int, error) {
-	var lastInsertId int
+	 lastInsertId := 0
 	err := db.DB.QueryRow("INSERT INTO users(email, name, source) VALUES($1, $2, $3) RETURNING id", email, username, "Code").Scan(&lastInsertId)
 
 	return lastInsertId, err
 }
 
 func AddUserByPassword(username string, password string) (int, error) {
-	var lastInsertId int
+	 lastInsertId := 0
 	err := db.DB.QueryRow("INSERT INTO users(name, password, source) VALUES($1, $2, $3) RETURNING id", username, password, "Password").Scan(&lastInsertId)
 
 	return lastInsertId, err

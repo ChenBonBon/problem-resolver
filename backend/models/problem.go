@@ -102,7 +102,7 @@ type ProblemType struct {
 
 func AddProblem(name string, description string, answer string, difficulty DifficultyType, types pq.Int32Array, createdBy int) error {
 	var _ int
-	var lastInsertId int64
+	lastInsertId := 0
 
 	err := db.DB.QueryRow("INSERT INTO problems(name, description, difficulty, types, created_by) VALUES($1, $2, $3, $4, $5) RETURNING id", name, description, difficulty, types, createdBy).Scan(&lastInsertId)
 

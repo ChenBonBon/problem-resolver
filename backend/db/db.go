@@ -27,11 +27,12 @@ func ConnectDB() {
 	dbPass := os.Getenv("DB_PASS")
 	dbName := os.Getenv("DB_NAME")
 
-	var dbConfig config
+	dbConfig := config{
+		DB_USER: dbUser,
+		DB_PASS: dbPass,
+		DB_NAME: dbName,
+	}
 
-	dbConfig.DB_USER = dbUser
-	dbConfig.DB_PASS = dbPass
-	dbConfig.DB_NAME = dbName
 
 	db, err := openDB(dbConfig)
 

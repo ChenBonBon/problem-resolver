@@ -21,7 +21,7 @@ type UserClaims struct {
 
 func GetCode(ctx iris.Context) {
 	email := ctx.URLParam("email")
-	var code []string
+	code := []string{}
 
 	for i := 0; i < 6; i++ {
 		n, _ := rand.Int(rand.Reader, big.NewInt(9))
