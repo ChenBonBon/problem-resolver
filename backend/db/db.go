@@ -1,67 +1,42 @@
 package db
 
 import (
-	"context"
-	"database/sql"
 	"log/slog"
 	"os"
 	"time"
 
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-type config struct {
-	DB_USER string
-	DB_PASS string
-	DB_NAME string
-}
 
-var (
-	DB *sql.DB
-)
+var DB *gorm.DB
 
 func ConnectDB() {
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
 	dbName := os.Getenv("DB_NAME")
 
-	dbConfig := config{
-		DB_USER: dbUser,
-		DB_PASS: dbPass,
-		DB_NAME: dbName,
-	}
-
-
-	db, err := openDB(dbConfig)
+	dsn := "host=localhost user="+dbUser+" password="+dbPass+" dbname="+dbName+" port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		slog.Error("Open database failed.", err)
+		slog.Error("连接数据库失败", err)
 		panic(err)
 	}
 
+	sqlDB, err := db.DB()
+
+	if err != nil {
+		slog.Error("获取数据库实例失败", err)
+		panic(err)
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
 	DB = db
 
-	slog.Info("database connection pool established")
-}
-
-func openDB(dbConfig config) (*sql.DB, error) {
-	//使用sql.Open()创建一个空连接池
-	db, err := sql.Open("postgres", "user="+dbConfig.DB_USER+" password="+dbConfig.DB_PASS+" dbname="+dbConfig.DB_NAME+" sslmode=disable")
-	if err != nil {
-		return nil, err
-	}
-
-	//创建一个具有5秒超时期限的上下文。
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	//使用PingContext()建立到数据库的新连接，并传入上下文信息，连接超时就返回
-	err = db.PingContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	// 返回sql.DB连接池
-	return db, nil
+	slog.Info("数据库连接成功")
 }

@@ -16,7 +16,7 @@ import (
 )
 
 type UserClaims struct {
-	UserID int `json:"user_id"`
+	UserID int32 `json:"user_id"`
 }
 
 func GetCode(ctx iris.Context) {
@@ -59,14 +59,14 @@ func LoginWithPassword(ctx iris.Context) {
 		return
 	}
 
-	userId, err := models.GetUserByPassword(login.Username, login.Password)
+	user, err := models.GetUserByPassword(login.Username, login.Password)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("获取用户信息失败").Detail(err.Error()).Type("Scan Problem"))
 		return
 	}
 
-	token, err := generateToken(userId)
+	token, err := generateToken(user.ID)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
@@ -90,19 +90,19 @@ func LoginWithCode(ctx iris.Context) {
 		return
 	}
 
-	used, expired_at, err := models.GetCodeStatus(login.Email, login.Code)
+	userCode, err := models.GetCodeStatus(login.Email, login.Code)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("邮箱或验证码错误").Detail(err.Error()).Type("Scan Problem"))
 		return
 	}
 
-	if used {
+	if userCode.Used {
 		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("验证码已使用").Type("Params Problem"))
 		return
 	}
 
-	if expired_at.Before(time.Now()) {
+	if userCode.ExpiredAt.Before(time.Now()) {
 		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("验证码已过期").Type("Params Problem"))
 		return
 	}
@@ -114,13 +114,13 @@ func LoginWithCode(ctx iris.Context) {
 		return
 	}
 
-	userId, err := models.GetUserByEmail(login.Email)
+	user, err := models.GetUserByEmail(login.Email)
 
 	if err != nil {
-		if userId == 0 {
+		if user.ID == 0 {
 			emailArr := strings.Split(login.Email, "@")
 			newUserId, err := models.AddUserByCode(login.Email, emailArr[0])
-			userId = newUserId
+			user.ID = newUserId
 			if err != nil {
 				ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("创建用户失败").Detail(err.Error()).Type("Insert Problem"))
 				return
@@ -131,7 +131,7 @@ func LoginWithCode(ctx iris.Context) {
 		}
 	}
 
-	token, err := generateToken(userId)
+	token, err := generateToken(user.ID)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
@@ -145,7 +145,7 @@ func LoginWithCode(ctx iris.Context) {
 	})
 }
 
-func generateToken(userId int) (string, error) {
+func generateToken(userId int32) (string, error) {
 	sigKey := os.Getenv("TOKEN_SIG_KEY")
 	expiredTime := os.Getenv("TOKEN_EXPIRED_TIME")
 	claims := UserClaims{UserID: userId}

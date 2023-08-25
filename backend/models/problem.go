@@ -2,16 +2,35 @@ package models
 
 import (
 	"backend/db"
-	"backend/utils"
-	"database/sql"
-	"strings"
+	"backend/db/models"
+	"time"
 
 	"github.com/lib/pq"
 )
 
 type StatusType string
-type SolveStatusType string
+
+const (
+	Enabled  StatusType = "enabled"
+	Disabled StatusType = "disabled"
+)
+
+
 type DifficultyType string
+
+const (
+	Easy   DifficultyType = "easy"
+	Medium DifficultyType = "medium"
+	Hard   DifficultyType = "hard"
+)
+
+type SolveStatusType string
+
+const (
+	Unsolved   SolveStatusType = "unsolved"
+	Processing SolveStatusType = "processing"
+	Solved     SolveStatusType = "solved"
+)
 
 type Example struct {
 	Id          int    `json:"id"`
@@ -21,34 +40,19 @@ type Example struct {
 	Image       string `json:"image"`
 }
 
-const (
-	Enabled  StatusType = "enabled"
-	Disabled StatusType = "disabled"
-)
-
-const (
-	Unsolved   SolveStatusType = "unsolved"
-	Processing SolveStatusType = "processing"
-	Solved     SolveStatusType = "solved"
-)
-
-const (
-	Easy   DifficultyType = "easy"
-	Medium DifficultyType = "medium"
-	Hard   DifficultyType = "hard"
-)
-
 type CreateProblemItem struct {
 	Name        string         `json:"name" validate:"required"`
 	Description string         `json:"description"`
 	Answer      string         `json:"answer"`
 	Difficulty  DifficultyType `json:"difficulty" validate:"required,easy|medium|hard"`
-	Types       pq.Int32Array `json:"types"`
+	Types       pq.Int32Array `gorm:"column:types;type:integer[]" json:"types"`
 }
 
 type UpdateProblemItem struct {
 	CreateProblemItem
 	Status StatusType `json:"status"`
+	UpdatedBy int32     `json:"updatedBy"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type Problem struct {
@@ -63,9 +67,10 @@ type Problem struct {
 type ProblemListItem struct {
 	Id         int             `json:"id"`
 	Name       string          `json:"name"`
+	Types      pq.StringArray  `gorm:"column:types;type:character varying(255)[]" json:"types"`
 	Status     SolveStatusType `json:"status"`
-	Answers    int             `json:"answers"`
-	PassRate   int             `json:"passRate"`
+	// Answers    int             `json:"answers"`
+	// PassRate   int             `json:"passRate"`
 	Difficulty DifficultyType  `json:"difficulty"`
 }
 
@@ -80,7 +85,7 @@ type ProblemItem struct {
 type UserProblemListItem struct {
 	Id         int            `json:"id"`
 	Name       string         `json:"name"`
-	Types      pq.StringArray  `json:"types"`
+	Types      pq.StringArray  `gorm:"column:types;type:character varying(255)[]" json:"types"`
 	Status     StatusType     `json:"status"`
 	Difficulty DifficultyType `json:"difficulty"`
 	CreatedAt  string     `json:"createdAt"`
@@ -100,118 +105,107 @@ type ProblemType struct {
 	UpdatedBy string `json:"updatedBy"`
 }
 
-func AddProblem(name string, description string, answer string, difficulty DifficultyType, types pq.Int32Array, createdBy int) error {
-	var _ int
-	lastInsertId := 0
-
-	err := db.DB.QueryRow("INSERT INTO problems(name, description, difficulty, types, created_by) VALUES($1, $2, $3, $4, $5) RETURNING id", name, description, difficulty, types, createdBy).Scan(&lastInsertId)
-
-	if err != nil {
-		return err
+func AddProblem(name string, description string, answer string, difficulty DifficultyType, types pq.Int32Array, createdBy int32) error {
+	problem := models.Problem{
+		Name:       name,
+		Description: description,
+		Difficulty: string(difficulty),
+		Types: types,
+		CreatedBy: createdBy,
 	}
 
-	err = db.DB.QueryRow("INSERT INTO problem_answers(problem_id, answer, created_by) VALUES($1, $2, $3) RETURNING id", lastInsertId, answer, createdBy).Scan(&lastInsertId)
+	result := db.DB.Create(&problem)
 
-	_ = lastInsertId
+	if result.Error != nil {
+		return result.Error
+	}
+	
+	problemAnswer := models.ProblemAnswer{
+		ProblemID: problem.ID,
+		Answer: answer,
+		CreatedBy: createdBy,
+	}
 
-	return err
+	result = db.DB.Create(&problemAnswer)
+
+	return result.Error
 }
 
-func GetProblems(status StatusType) (*sql.Rows, error) {
-	var rows *sql.Rows
-	var err error
+func GetProblems(status StatusType) ([]ProblemListItem, error) {
+	var problems []ProblemListItem
+
+	subQuery := db.DB.Table("problems as p, problem_types as pt").Select("ARRAY [pt.name] as types").Where("pt.id = ANY (p.types)")
+
+	if status == "" {
+		result := db.DB.Model(&models.Problem{}).Find(&problems)
+
+		return problems, result.Error
+	}
+
+	result := db.DB.Table("(?) as sub ,problems as p", subQuery).Select("p.id", "p.name", "sub.types", "COALESCE(up.status, 'unsolved') as status", "difficulty").Joins("left join user_problems as up on up.problem_id = p.id").Where("p.status = ?", status).Find(&problems)
+
+	return problems, result.Error
+}
+
+func GetProblemsByUserId(userId int32) ([]UserProblemListItem, error) {
+	var problems []UserProblemListItem
+
+	subQuery := db.DB.Table("problems as p, problem_types as pt").Select("ARRAY [pt.name] as types").Where("pt.id = ANY (p.types)")
+
+	result := db.DB.Table("(?) as sub ,problems as p", subQuery).Select("p.id", "p.name", "sub.types", "difficulty", "p.status", "p.created_at").Where("p.created_by = ?", userId).Find(&problems)
+
+	return problems, result.Error
+}
+
+func GetProblemTypes(status StatusType) ([]models.ProblemType, error) {
+	var problemTypes []models.ProblemType
 	
 	if status == "" {
-		rows, err = db.DB.Query("SELECT id, name, difficulty FROM problems")
-	} else {
-		rows, err = db.DB.Query("SELECT id, name, difficulty FROM problems WHERE status = $1", status)
+		result := db.DB.Select("id", "name").Find(&problemTypes)
+
+		return problemTypes, result.Error
 	}
+	result := db.DB.Select("id", "name").Where("status = ?", status).Find(&problemTypes)
 
-	return rows, err
+	return problemTypes, result.Error
 }
 
-func GetProblemsByUserId(userId int) (*sql.Rows, error) {
-	rows, err := db.DB.Query("SELECT p.id, p.name, ARRAY (SELECT pt.name FROM problem_types pt WHERE pt.id = ANY (p.types)), p.difficulty, p.status, p.created_at FROM problems p WHERE p.created_by = $1", userId)
-
-	return rows, err
-}
-
-func GetProblemTypes(status StatusType) (*sql.Rows, error) {
-	var rows *sql.Rows
-	var err error
+func UpdateProblem(id int32, items UpdateProblemItem, userId int32) error {
+	problem := models.Problem{}
+	problemAnswer := models.ProblemAnswer{}
+	nameSet := []string{
+		"updated_by",
+		"updated_at",
+	}
 	
-	if status == "" {
-		rows, err = db.DB.Query("SELECT id, name FROM problem_types")
-		} else {
-		rows, err = db.DB.Query("SELECT id, name FROM problem_types WHERE status = $1", status)
-	}
-
-
-	return rows, err
-}
-
-func UpdateProblem(id int, items UpdateProblemItem, userId int) error {
-	nameSet := []string{}
-	valueSet := []interface{}{}
-
 	if items.Name != "" {
-		nameSet = append(nameSet, "name = " + utils.AutoQueryPlaceholder(nameSet, 3))
-		valueSet = append(valueSet, items.Name)
+		nameSet = append(nameSet, "name")
 	}
 
 	if (items.Description != "") {
-		nameSet = append(nameSet, "description = " + utils.AutoQueryPlaceholder(nameSet, 3))
-		valueSet = append(valueSet, items.Description)
-	}
-
-	if (items.Answer != "") {
-		nameSet = append(nameSet, "answer = " + utils.AutoQueryPlaceholder(nameSet, 3))
-		valueSet = append(valueSet, items.Answer)
+		nameSet = append(nameSet, "description")
 	}
 
 	if (items.Difficulty != "") {
-		nameSet = append(nameSet, "difficulty = " + utils.AutoQueryPlaceholder(nameSet, 3))
-		valueSet = append(valueSet, items.Difficulty)
+		nameSet = append(nameSet, "difficulty")
 	}
 
 	if (items.Status != "") {
-		nameSet = append(nameSet, "status = " + utils.AutoQueryPlaceholder(nameSet, 3))
-		valueSet = append(valueSet, items.Status)
+		nameSet = append(nameSet, "status")
 	}
 
 	if (items.Types != nil) {
-		nameSet = append(nameSet, "types = " + utils.AutoQueryPlaceholder(nameSet, 3))
-		valueSet = append(valueSet, items.Types)
+		nameSet = append(nameSet, "types")
 	}
 
-	sql := "UPDATE problems SET updated_by = $2, updated_at = NOW(), " + strings.Join(nameSet, ", ") + " WHERE id = $1"
+	items.UpdatedBy = userId
+	items.UpdatedAt = time.Now()
 
-	println("sql: ", sql)
+	result := db.DB.Model(&problem).Select(nameSet).Where("id = ?", id).Updates(items)
 
-	stmt, err := db.DB.Prepare(sql)
-
-	if err != nil {
-		return err
+	if (items.Answer != "") {
+		db.DB.Model(&problemAnswer).Select("answer = ? AND updated_by = ? AND updated_at = ?").Where("problem_id = ? AND created_by = ?", items.Answer, userId).Updates(items)
 	}
 
-	slice := []interface{}{id, userId}
-	slice = append(slice, valueSet...)
-
-	println("slice: ", slice)
-	res, err := stmt.Exec(slice...)
-
-	if err != nil {
-		return err
-	}
-
-	var _ int64
-	affected, err := res.RowsAffected()
-
-	_ = affected
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return result.Error
 }

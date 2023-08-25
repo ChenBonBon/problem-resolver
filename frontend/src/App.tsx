@@ -42,7 +42,7 @@ const LoadingWrapper = styled.div`
 `;
 
 function App() {
-  useTitle(`${AppNameEn} - ${AppName}`);
+  useTitle(`${AppName} - ${AppNameEn}`);
 
   const { smallScreen } = useBreakpoint();
   const { loading } = useLoading();
