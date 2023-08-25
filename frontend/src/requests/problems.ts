@@ -34,7 +34,7 @@ export async function getProblemTypes(status?: Status) {
 }
 
 export async function addProblem(params: ICreateProblemForm) {
-  return await request(`/api/users/problems`, "POST", params);
+  return await request("/api/users/problems", "POST", params);
 }
 
 export async function getUserProblems() {

@@ -23,19 +23,18 @@ export default function Avatar(props: IAvatar) {
         </LinkText>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        {props.menus &&
-          props.menus.map((menu) => (
-            <DropdownMenu.Item
-              key={menu.key}
-              onClick={() => {
-                if (menu.link) {
-                  navigate(menu.link);
-                }
-              }}
-            >
-              <LinkText>{menu.label}</LinkText>
-            </DropdownMenu.Item>
-          ))}
+        {props.menus?.map((menu) => (
+          <DropdownMenu.Item
+            key={menu.key}
+            onClick={() => {
+              if (menu.link) {
+                navigate(menu.link);
+              }
+            }}
+          >
+            <LinkText>{menu.label}</LinkText>
+          </DropdownMenu.Item>
+        ))}
         <DropdownMenu.Separator />
         <DropdownMenu.Item
           onClick={() => {
