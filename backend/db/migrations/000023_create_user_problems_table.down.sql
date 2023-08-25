@@ -1,0 +1,1 @@
+ALTER TABLE user_problems ALTER COLUMN status SET DEFAULT 'unsolved';

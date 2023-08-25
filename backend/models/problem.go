@@ -11,10 +11,9 @@ import (
 type StatusType string
 
 const (
-	Enabled  StatusType = "enabled"
-	Disabled StatusType = "disabled"
+	Enabled  StatusType = "Enabled"
+	Disabled StatusType = "Disabled"
 )
-
 
 type DifficultyType string
 
@@ -45,14 +44,14 @@ type CreateProblemItem struct {
 	Description string         `json:"description"`
 	Answer      string         `json:"answer"`
 	Difficulty  DifficultyType `json:"difficulty" validate:"required,easy|medium|hard"`
-	Types       pq.Int32Array `gorm:"column:types;type:integer[]" json:"types"`
+	Types       pq.Int32Array  `gorm:"column:types;type:integer[]" json:"types"`
 }
 
 type UpdateProblemItem struct {
 	CreateProblemItem
-	Status StatusType `json:"status"`
-	UpdatedBy int32     `json:"updatedBy"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	Status    StatusType `json:"status"`
+	UpdatedBy int32      `json:"updatedBy"`
+	UpdatedAt time.Time  `json:"updatedAt"`
 }
 
 type Problem struct {
@@ -65,13 +64,13 @@ type Problem struct {
 }
 
 type ProblemListItem struct {
-	Id         int             `json:"id"`
-	Name       string          `json:"name"`
-	Types      pq.StringArray  `gorm:"column:types;type:character varying(255)[]" json:"types"`
-	Status     SolveStatusType `json:"status"`
+	Id     int             `json:"id"`
+	Name   string          `json:"name"`
+	Types  pq.StringArray  `gorm:"column:types;type:character varying(255)[]" json:"types"`
+	Status SolveStatusType `json:"status"`
 	// Answers    int             `json:"answers"`
 	// PassRate   int             `json:"passRate"`
-	Difficulty DifficultyType  `json:"difficulty"`
+	Difficulty DifficultyType `json:"difficulty"`
 }
 
 type ProblemItem struct {
@@ -85,33 +84,33 @@ type ProblemItem struct {
 type UserProblemListItem struct {
 	Id         int            `json:"id"`
 	Name       string         `json:"name"`
-	Types      pq.StringArray  `gorm:"column:types;type:character varying(255)[]" json:"types"`
+	Types      pq.StringArray `gorm:"column:types;type:character varying(255)[]" json:"types"`
 	Status     StatusType     `json:"status"`
 	Difficulty DifficultyType `json:"difficulty"`
-	CreatedAt  string     `json:"createdAt"`
+	CreatedAt  string         `json:"createdAt"`
 }
 
 type ProblemTypeListItem struct {
-	Id     int        `json:"id"`
-	Name   string     `json:"name"`
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type ProblemType struct {
 	ProblemListItem
-	Status StatusType `json:"status"`
-	CreatedAt string `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	UpdatedAt string `json:"updatedAt"`
-	UpdatedBy string `json:"updatedBy"`
+	Status    StatusType `json:"status"`
+	CreatedAt string     `json:"createdAt"`
+	CreatedBy string     `json:"createdBy"`
+	UpdatedAt string     `json:"updatedAt"`
+	UpdatedBy string     `json:"updatedBy"`
 }
 
 func AddProblem(name string, description string, answer string, difficulty DifficultyType, types pq.Int32Array, createdBy int32) error {
 	problem := models.Problem{
-		Name:       name,
+		Name:        name,
 		Description: description,
-		Difficulty: string(difficulty),
-		Types: types,
-		CreatedBy: createdBy,
+		Difficulty:  string(difficulty),
+		Types:       types,
+		CreatedBy:   createdBy,
 	}
 
 	result := db.DB.Create(&problem)
@@ -119,10 +118,10 @@ func AddProblem(name string, description string, answer string, difficulty Diffi
 	if result.Error != nil {
 		return result.Error
 	}
-	
+
 	problemAnswer := models.ProblemAnswer{
 		ProblemID: problem.ID,
-		Answer: answer,
+		Answer:    answer,
 		CreatedBy: createdBy,
 	}
 
@@ -159,7 +158,7 @@ func GetProblemsByUserId(userId int32) ([]UserProblemListItem, error) {
 
 func GetProblemTypes(status StatusType) ([]models.ProblemType, error) {
 	var problemTypes []models.ProblemType
-	
+
 	if status == "" {
 		result := db.DB.Select("id", "name").Find(&problemTypes)
 
@@ -177,24 +176,24 @@ func UpdateProblem(id int32, items UpdateProblemItem, userId int32) error {
 		"updated_by",
 		"updated_at",
 	}
-	
+
 	if items.Name != "" {
 		nameSet = append(nameSet, "name")
 	}
 
-	if (items.Description != "") {
+	if items.Description != "" {
 		nameSet = append(nameSet, "description")
 	}
 
-	if (items.Difficulty != "") {
+	if items.Difficulty != "" {
 		nameSet = append(nameSet, "difficulty")
 	}
 
-	if (items.Status != "") {
+	if items.Status != "" {
 		nameSet = append(nameSet, "status")
 	}
 
-	if (items.Types != nil) {
+	if items.Types != nil {
 		nameSet = append(nameSet, "types")
 	}
 
@@ -203,7 +202,7 @@ func UpdateProblem(id int32, items UpdateProblemItem, userId int32) error {
 
 	result := db.DB.Model(&problem).Select(nameSet).Where("id = ?", id).Updates(items)
 
-	if (items.Answer != "") {
+	if items.Answer != "" {
 		db.DB.Model(&problemAnswer).Select("answer = ? AND updated_by = ? AND updated_at = ?").Where("problem_id = ? AND created_by = ?", items.Answer, userId).Updates(items)
 	}
 

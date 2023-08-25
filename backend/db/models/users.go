@@ -16,7 +16,7 @@ type User struct {
 	Name      string    `gorm:"column:name;not null" json:"name"`
 	Email     string    `gorm:"column:email;not null" json:"email"`
 	Password  string    `gorm:"column:password" json:"password"`
-	Status    string    `gorm:"column:status;not null;default:'enabled'::character varying" json:"status"`
+	Status    string    `gorm:"column:status;not null;default:'Enabled'" json:"status"`
 	Source    string    `gorm:"column:source;not null" json:"source"`
 	CreatedAt time.Time `gorm:"column:created_at;not null;default:now()" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at"`

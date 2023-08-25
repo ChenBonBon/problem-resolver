@@ -100,7 +100,7 @@ func GetProblemTypes(ctx iris.Context) {
 func UpdateProblem(ctx iris.Context) {
 	claims := jwt.Get(ctx).(*UserClaims)
 	userId := claims.UserID
-	id, err := strconv.ParseInt(ctx.Params().Get("id"), 10, 32) 
+	id, err := strconv.ParseInt(ctx.Params().Get("id"), 10, 32)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusBadRequest, iris.NewProblem().Title("问题 ID 错误").Detail(err.Error()).Type("Param Problem"))

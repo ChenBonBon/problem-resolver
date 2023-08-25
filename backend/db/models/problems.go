@@ -22,7 +22,7 @@ type Problem struct {
 	UpdatedAt   time.Time `gorm:"column:updated_at" json:"updated_at"`
 	UpdatedBy   int32     `gorm:"column:updated_by" json:"updated_by"`
 	Difficulty  string    `gorm:"column:difficulty;not null" json:"difficulty"`
-	Status      string    `gorm:"column:status;default:'enabled'::character varying" json:"status"`
+	Status      string    `gorm:"column:status;default:'Enabled'" json:"status"`
 	Types       pq.Int32Array    `gorm:"column:types;type:integer[];default:'{5}'::integer[]" json:"types"`
 }
 

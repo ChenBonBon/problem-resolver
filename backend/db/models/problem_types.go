@@ -14,7 +14,7 @@ const TableNameProblemType = "problem_types"
 type ProblemType struct {
 	ID        int32     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
 	Name      string    `gorm:"column:name;not null" json:"name"`
-	Status    string    `gorm:"column:status;not null;default:'enabled'::character varying" json:"status"`
+	Status    string    `gorm:"column:status;not null;default:'Enabled'" json:"status"`
 	CreatedAt time.Time `gorm:"column:created_at;not null;default:now()" json:"created_at"`
 	CreatedBy int32     `gorm:"column:created_by;not null" json:"created_by"`
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at"`

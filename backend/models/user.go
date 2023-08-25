@@ -16,24 +16,10 @@ type LoginWithCode struct {
 	Code  string `json:"code" validate:"required"`
 }
 
-// type User struct {
-// 	ID       int    `json:"id"`
-// 	Username string `json:"username"`
-// }
-
-// type UserCode struct {
-// 	ID        int    `json:"id"`
-// 	Email     string `json:"email"`
-// 	Code      string `json:"code"`
-// 	CreatedAt string `json:"created_at"`
-// 	ExpiresAt string `json:"expires_at"`
-// 	Used      bool   `json:"used"`
-// }
-
 func AddCode(email string, code string) error {
 	userCode := models.UserCode{
 		Email: email,
-		Code: code,
+		Code:  code,
 	}
 
 	result := db.DB.Create(&userCode)
@@ -84,8 +70,8 @@ func UpdateCodeStatus(email string, code string) error {
 
 func AddUserByCode(email string, username string) (int32, error) {
 	user := models.User{
-		Email: email,
-		Name:  username,
+		Email:  email,
+		Name:   username,
 		Source: "Code",
 	}
 
@@ -96,12 +82,20 @@ func AddUserByCode(email string, username string) (int32, error) {
 
 func AddUserByPassword(username string, password string) (int64, error) {
 	user := models.User{
-		Name: username,
+		Name:     username,
 		Password: password,
-		Source: "Password",
+		Source:   "Password",
 	}
 
 	result := db.DB.Create(&user)
 
 	return result.RowsAffected, result.Error
+}
+
+func GetUserById(id int32) (models.User, error) {
+	user := models.User{}
+
+	result := db.DB.First(&user, id)
+
+	return user, result.Error
 }

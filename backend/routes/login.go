@@ -118,13 +118,14 @@ func LoginWithCode(ctx iris.Context) {
 
 	if err != nil {
 		if user.ID == 0 {
-			emailArr := strings.Split(login.Email, "@")
-			newUserId, err := models.AddUserByCode(login.Email, emailArr[0])
-			user.ID = newUserId
+			userId, err := AddUser(login.Email)
+			
 			if err != nil {
 				ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("创建用户失败").Detail(err.Error()).Type("Insert Problem"))
 				return
 			}
+
+			user.ID = userId
 		} else {
 			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("获取用户信息失败").Detail(err.Error()).Type("Scan Problem"))
 			return
@@ -169,22 +170,6 @@ func generateToken(userId int32) (string, error) {
 	return string(token), err
 }
 
-func RefreshToken(ctx iris.Context) {
-	claims := jwt.Get(ctx).(*UserClaims)
-	newToken, err := generateToken(claims.UserID)
-
-	if err != nil {
-		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
-		return
-	}
-
-	ctx.JSON(Success{
-		Code: 0,
-		Msg:  "success",
-		Data: newToken,
-	})
-}
-
 func Logout(ctx iris.Context) {
 	err := ctx.Logout()
 	if err != nil {
@@ -196,4 +181,11 @@ func Logout(ctx iris.Context) {
 			Msg:  "success",
 		})
 	}
+}
+
+func AddUser(email string) (int32, error) {
+	emailArr := strings.Split(email, "@")
+	userId, err := models.AddUserByCode(email, emailArr[0])
+	
+	return userId, err
 }

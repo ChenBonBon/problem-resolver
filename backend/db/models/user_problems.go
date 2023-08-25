@@ -8,21 +8,19 @@ import (
 	"time"
 )
 
-const TableNameProblemAnswer = "problem_answers"
+const TableNameUserProblem = "user_problems"
 
-// ProblemAnswer mapped from table <problem_answers>
-type ProblemAnswer struct {
+// UserProblem mapped from table <user_problems>
+type UserProblem struct {
 	ID        int32     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	UserID    int32     `gorm:"column:user_id;not null" json:"user_id"`
 	ProblemID int32     `gorm:"column:problem_id;not null" json:"problem_id"`
-	Answer    string    `gorm:"column:answer;not null" json:"answer"`
 	Status    string    `gorm:"column:status;not null;default:'Enabled'" json:"status"`
 	CreatedAt time.Time `gorm:"column:created_at;not null;default:now()" json:"created_at"`
-	CreatedBy int32     `gorm:"column:created_by;not null" json:"created_by"`
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at"`
-	UpdatedBy int32     `gorm:"column:updated_by" json:"updated_by"`
 }
 
-// TableName ProblemAnswer's table name
-func (*ProblemAnswer) TableName() string {
-	return TableNameProblemAnswer
+// TableName UserProblem's table name
+func (*UserProblem) TableName() string {
+	return TableNameUserProblem
 }

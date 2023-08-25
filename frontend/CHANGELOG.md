@@ -86,3 +86,6 @@
 ### Changed
 
 - 将数据库部分迁移至 GORM
+- 将所有 varchar 类型默认值迁移至 GORM 默认值
+- GORM 日志移除查询数据为空报错
+- Token 校验失败自动退出登录

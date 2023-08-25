@@ -1,0 +1,1 @@
+ALTER TABLE problem_types ALTER COLUMN status SET DEFAULT 'enabled';

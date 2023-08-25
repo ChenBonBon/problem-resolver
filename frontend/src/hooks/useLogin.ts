@@ -69,6 +69,9 @@ export default function useLogin() {
       if (res) {
         setLogined(true);
         window.localStorage.setItem("token", res.data);
+      } else {
+        setLogined(false);
+        window.localStorage.removeItem("token");
       }
     } else {
       setLogined(false);

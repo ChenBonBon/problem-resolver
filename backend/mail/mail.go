@@ -15,16 +15,16 @@ func SendMail(to string, subject string, html string) {
 	senderPort := os.Getenv("EMAIL_SENDER_PORT")
 	senderPass := os.Getenv("EMAIL_SENDER_PASS")
 
-    e := email.NewEmail()
-    e.From = senderName + "<" + senderAddress + ">"
-    e.To = []string{to}
-    e.Subject = subject
-    e.HTML = []byte(html)
+	e := email.NewEmail()
+	e.From = senderName + "<" + senderAddress + ">"
+	e.To = []string{to}
+	e.Subject = subject
+	e.HTML = []byte(html)
 
-    err := e.Send(senderServer + ":" + senderPort, smtp.PlainAuth("", senderAddress, senderPass, senderServer))
+	err := e.Send(senderServer+":"+senderPort, smtp.PlainAuth("", senderAddress, senderPass, senderServer))
 
-    if err != nil {
-        slog.Error(err.Error())
+	if err != nil {
+		slog.Error(err.Error())
 		panic(err)
-    }
+	}
 }
