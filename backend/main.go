@@ -3,6 +3,7 @@ package main
 import (
 	"backend/db"
 	"backend/routes"
+	"backend/utils"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -25,7 +26,7 @@ func main() {
 	verifier := jwt.NewVerifier(jwt.HS256, sigKey)
 	verifier.WithDefaultBlocklist()
 	verifyMiddleware := verifier.Verify(func() interface{} {
-		return new(routes.UserClaims)
+		return new(utils.UserClaims)
 	})
 
 	app.OnErrorCode(iris.StatusUnauthorized, func(ctx iris.Context) {
@@ -34,7 +35,7 @@ func main() {
 		ctx.StopWithProblem(iris.StatusUnauthorized, iris.NewProblem().Title("Token验证失败").Detail(err.Error()).Type("Unauthorized Problem"))
 	})
 
-	app.Get("/token", routes.RefreshToken).Use(verifyMiddleware)
+	app.Get("/user", routes.GetUser).Use(verifyMiddleware)
 	app.Post("/logout", routes.Logout).Use(verifyMiddleware)
 
 	app.Get("/code", routes.GetCode)

@@ -1,5 +1,5 @@
 import { Flex, Select, TextArea, TextField } from "@radix-ui/themes";
-import { useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffectOnce, useToggle } from "react-use";
 import { styled } from "styled-components";
@@ -38,6 +38,18 @@ export default function CreateProblem() {
     return smallScreen ? 450 : 600;
   }, [smallScreen]);
 
+  const options = useMemo(() => {
+    return Object.keys(difficultyMap).map((key) => {
+      const { label } = difficultyMap[key];
+
+      return (
+        <Select.Item key={key} value={key}>
+          {label}
+        </Select.Item>
+      );
+    });
+  }, []);
+
   async function submit() {
     if (form.name.length === 0) {
       toggleNameError(true);
@@ -60,8 +72,44 @@ export default function CreateProblem() {
     }
   }
 
+  const nameChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) =>
+      setForm({ ...form, name: e.target.value }),
+    [form]
+  );
+
+  const descriptionChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) =>
+      setForm({ ...form, description: e.target.value }),
+    [form]
+  );
+
+  const answerChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) =>
+      setForm({ ...form, answer: e.target.value }),
+    [form]
+  );
+
+  const difficultyChange = useCallback(
+    (value: string) => {
+      setForm({ ...form, difficulty: value });
+    },
+    [form]
+  );
+
+  const typesChange = useCallback(
+    (value: number[]) => {
+      setForm({ ...form, types: value });
+    },
+    [form]
+  );
+
+  const cancel = useCallback(() => {
+    navigate("/my-problems");
+  }, [navigate]);
+
   useEffectOnce(() => {
-    getProblemTypes("enabled");
+    getProblemTypes("Enabled");
   });
 
   return (
@@ -73,22 +121,13 @@ export default function CreateProblem() {
           errorText="请输入问题"
           status={nameError ? "error" : "success"}
         >
-          <TextField.Input
-            placeholder="请输入问题"
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
+          <TextField.Input placeholder="请输入问题" onChange={nameChange} />
         </FormItem>
         <FormItem label="描述">
-          <TextArea
-            placeholder="请输入问题描述"
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-          />
+          <TextArea placeholder="请输入问题描述" onChange={descriptionChange} />
         </FormItem>
         <FormItem label="题解">
-          <TextArea
-            placeholder="请输入官方题解"
-            onChange={(e) => setForm({ ...form, answer: e.target.value })}
-          />
+          <TextArea placeholder="请输入官方题解" onChange={answerChange} />
         </FormItem>
         <FormItem
           label="难度"
@@ -96,41 +135,17 @@ export default function CreateProblem() {
           errorText="请选择难度"
           status={difficultyError ? "error" : "success"}
         >
-          <Select.Root
-            onValueChange={(value) => {
-              setForm({ ...form, difficulty: value });
-            }}
-          >
+          <Select.Root onValueChange={difficultyChange}>
             <Select.Trigger placeholder="请选择难度" />
-            <Select.Content position="popper">
-              {Object.keys(difficultyMap).map((key) => {
-                const { label } = difficultyMap[key];
-
-                return (
-                  <Select.Item key={key} value={key}>
-                    {label}
-                  </Select.Item>
-                );
-              })}
-            </Select.Content>
+            <Select.Content position="popper">{options}</Select.Content>
           </Select.Root>
         </FormItem>
         <FormItem label="分类">
-          <BadgeGroup
-            items={problemTypes}
-            onChange={(value) => {
-              setForm({ ...form, types: value });
-            }}
-          />
+          <BadgeGroup items={problemTypes} onChange={typesChange} />
         </FormItem>
         <Flex gap="5">
           <Button onClick={submit}>提交</Button>
-          <Button
-            highContrast
-            onClick={() => {
-              navigate("/my-problems");
-            }}
-          >
+          <Button highContrast onClick={cancel}>
             取消
           </Button>
         </Flex>

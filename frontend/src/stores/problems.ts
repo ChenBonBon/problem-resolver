@@ -22,15 +22,24 @@ export interface IProblem extends IProblemBase {
 
 export interface ICreateProblemForm {
   name: string;
-  description: string;
-  answer: string;
+  description?: string;
+  answer?: string;
   difficulty: string;
-  types: number[];
+  types?: number[];
+}
+
+export interface IUpdateProblemForm {
+  name?: string;
+  description?: string;
+  answer?: string;
+  difficulty?: string;
+  types?: number[];
+  status?: Status;
 }
 
 export interface IUserProblem extends IProblemBase {
   createdAt: string;
-  status: "disabled" | "enabled";
+  status: Status;
 }
 
 export interface IExample {

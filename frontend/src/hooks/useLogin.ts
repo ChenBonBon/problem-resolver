@@ -8,6 +8,9 @@ export default function useLogin() {
   const logined = useLoginStore((state) => state.logined);
   const setLogined = useLoginStore((state) => state.setLogined);
   const checked = useLoginStore((state) => state.checked);
+  const username = useLoginStore((state) => state.username);
+  const setUsername = useLoginStore((state) => state.setUsername);
+
   const { showToast } = useToast();
 
   async function getCode(email: string) {
@@ -36,8 +39,10 @@ export default function useLogin() {
       password,
     });
     if (res && res.code === 0) {
+      const { username, token } = res.data;
       setLogined(true);
-      window.localStorage.setItem("token", res.data);
+      window.localStorage.setItem("token", token);
+      setUsername(username);
     }
   }
 
@@ -49,8 +54,10 @@ export default function useLogin() {
 
     const res = await request("/api/login/code", "POST", { email, code });
     if (res && res.code === 0) {
+      const { username, token } = res.data;
       setLogined(true);
-      window.localStorage.setItem("token", res.data);
+      window.localStorage.setItem("token", token);
+      setUsername(username);
     }
   }
 
@@ -64,11 +71,13 @@ export default function useLogin() {
 
   async function getUser() {
     if (window.localStorage.getItem("token")) {
-      const res = await request("/api/token", "GET");
+      const res = await request("/api/user", "GET");
 
       if (res) {
+        const { username, token } = res.data;
         setLogined(true);
-        window.localStorage.setItem("token", res.data);
+        window.localStorage.setItem("token", token);
+        setUsername(username);
       } else {
         setLogined(false);
         window.localStorage.removeItem("token");
@@ -81,6 +90,7 @@ export default function useLogin() {
   return {
     sended,
     logined,
+    username,
     getUser,
     getCode,
     loginWithPassword,

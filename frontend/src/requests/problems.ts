@@ -1,7 +1,5 @@
 import request from ".";
-import useProblemsStore, { ICreateProblemForm } from "../stores/problems";
-
-type Status = "enabled" | "disabled";
+import useProblemsStore, { ICreateProblemForm, IUpdateProblemForm } from "../stores/problems";
 
 export async function getProblems(status?: Status) {
   const { setProblems } = useProblemsStore.getState();
@@ -48,7 +46,7 @@ export async function getUserProblems() {
 
 export async function updateProblem(
   id: number,
-  params: { [key: string]: any }
+  params: IUpdateProblemForm
 ) {
   return await request(`/api/users/problems/${id}`, "PUT", params);
 }

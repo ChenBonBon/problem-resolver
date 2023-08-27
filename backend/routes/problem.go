@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/models"
+	"backend/utils"
 	"strconv"
 
 	"github.com/kataras/iris/v12"
@@ -36,7 +37,7 @@ func GetProblem(ctx iris.Context) {
 }
 
 func AddProblem(ctx iris.Context) {
-	claims := jwt.Get(ctx).(*UserClaims)
+	claims := jwt.Get(ctx).(*utils.UserClaims)
 	userId := claims.UserID
 
 	var problem models.CreateProblemItem
@@ -62,7 +63,7 @@ func AddProblem(ctx iris.Context) {
 }
 
 func GetProblemsByUserId(ctx iris.Context) {
-	claims := jwt.Get(ctx).(*UserClaims)
+	claims := jwt.Get(ctx).(*utils.UserClaims)
 	userId := claims.UserID
 
 	problems, err := models.GetProblemsByUserId(userId)
@@ -98,7 +99,7 @@ func GetProblemTypes(ctx iris.Context) {
 }
 
 func UpdateProblem(ctx iris.Context) {
-	claims := jwt.Get(ctx).(*UserClaims)
+	claims := jwt.Get(ctx).(*utils.UserClaims)
 	userId := claims.UserID
 	id, err := strconv.ParseInt(ctx.Params().Get("id"), 10, 32)
 

@@ -1,5 +1,5 @@
 import { Checkbox, Flex, Link, Text } from "@radix-ui/themes";
-import { useMemo, useState } from "react";
+import { MouseEvent, useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffectOnce } from "react-use";
 import { styled } from "styled-components";
@@ -32,44 +32,56 @@ export default function Login() {
     }
   }, [loginType]);
 
+  const passwordLogin = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setLoginType("password");
+  }, []);
+
+  const codeLogin = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setLoginType("code");
+  }, []);
+
+  const forgetPassword = useCallback(
+    (e: MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      navigate("/forget-password");
+    },
+    [navigate]
+  );
+
   const Controls = useMemo(() => {
     if (loginType === "code") {
       return (
-        <Link
-          size="2"
-          onClick={(e) => {
-            e.preventDefault();
-            setLoginType("password");
-          }}
-        >
+        <Link size="2" onClick={passwordLogin}>
           账号密码登录
         </Link>
       );
     } else if (loginType === "password") {
       return (
         <Flex justify="between">
-          <Link
-            size="2"
-            onClick={(e) => {
-              e.preventDefault();
-              setLoginType("code");
-            }}
-          >
+          <Link size="2" onClick={codeLogin}>
             验证码登录
           </Link>
-          <Link
-            size="2"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("/forget-password");
-            }}
-          >
+          <Link size="2" onClick={forgetPassword}>
             忘记密码
           </Link>
         </Flex>
       );
     }
-  }, [loginType, navigate]);
+  }, [codeLogin, forgetPassword, loginType, passwordLogin]);
+
+  const onCheckedChange = useCallback(
+    (checked: CheckedState) => {
+      setChecked(checked as boolean);
+      if (checked) {
+        window.localStorage.setItem("agreeLicense", "true");
+      } else {
+        window.localStorage.removeItem("agreeLicense");
+      }
+    },
+    [setChecked]
+  );
 
   useEffectOnce(() => {
     setSended(false);
@@ -83,17 +95,7 @@ export default function Login() {
           {LoginForm}
           {Controls}
           <Flex gap="3" align="center">
-            <Checkbox
-              checked={checked}
-              onCheckedChange={(checked) => {
-                setChecked(checked as boolean);
-                if (checked) {
-                  window.localStorage.setItem("agreeLicense", "true");
-                } else {
-                  window.localStorage.removeItem("agreeLicense");
-                }
-              }}
-            />
+            <Checkbox checked={checked} onCheckedChange={onCheckedChange} />
             <Text size="1">
               注册或登录即代表您同意<Link>《用户协议》</Link>和
               <Link>《隐私政策》</Link>

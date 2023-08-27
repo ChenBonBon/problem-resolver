@@ -1,23 +1,19 @@
 package routes
 
 import (
+	dbmodels "backend/db/models"
 	"backend/mail"
 	"backend/models"
+	"backend/utils"
 	"crypto/rand"
 	"log/slog"
 	"math/big"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/middleware/jwt"
 )
-
-type UserClaims struct {
-	UserID int32 `json:"user_id"`
-}
 
 func GetCode(ctx iris.Context) {
 	email := ctx.URLParam("email")
@@ -49,6 +45,13 @@ func GetCode(ctx iris.Context) {
 	})
 }
 
+func AddUser(email string) (dbmodels.User, error) {
+	emailArr := strings.Split(email, "@")
+	user, err := models.AddUserByCode(email, emailArr[0])
+	
+	return user, err
+}
+
 func LoginWithPassword(ctx iris.Context) {
 	var login models.LoginWithPassword
 
@@ -66,7 +69,7 @@ func LoginWithPassword(ctx iris.Context) {
 		return
 	}
 
-	token, err := generateToken(user.ID)
+	token, err := utils.GenerateToken(user.ID)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
@@ -76,7 +79,10 @@ func LoginWithPassword(ctx iris.Context) {
 	ctx.JSON(Success{
 		Code: 0,
 		Msg:  "success",
-		Data: token,
+		Data: User{
+			Username: user.Name,
+			NewToken: token,
+		},
 	})
 }
 
@@ -118,21 +124,22 @@ func LoginWithCode(ctx iris.Context) {
 
 	if err != nil {
 		if user.ID == 0 {
-			userId, err := AddUser(login.Email)
-			
+			newUser, err := AddUser(login.Email)
+
 			if err != nil {
 				ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("创建用户失败").Detail(err.Error()).Type("Insert Problem"))
 				return
 			}
 
-			user.ID = userId
+			user.ID = newUser.ID
+			user.Name = newUser.Name
 		} else {
 			ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("获取用户信息失败").Detail(err.Error()).Type("Scan Problem"))
 			return
 		}
 	}
 
-	token, err := generateToken(user.ID)
+	token, err := utils.GenerateToken(user.ID)
 
 	if err != nil {
 		ctx.StopWithProblem(iris.StatusInternalServerError, iris.NewProblem().Title("Token生成失败").Detail(err.Error()).Type("Sign Problem"))
@@ -142,32 +149,11 @@ func LoginWithCode(ctx iris.Context) {
 	ctx.JSON(Success{
 		Code: 0,
 		Msg:  "success",
-		Data: token,
+		Data: User{
+			Username: user.Name,
+			NewToken: token,
+		},
 	})
-}
-
-func generateToken(userId int32) (string, error) {
-	sigKey := os.Getenv("TOKEN_SIG_KEY")
-	expiredTime := os.Getenv("TOKEN_EXPIRED_TIME")
-	claims := UserClaims{UserID: userId}
-
-	expiredArr := strings.Split(expiredTime, "*")
-	expired := 1
-
-	for _, value := range expiredArr {
-
-		res, err := strconv.Atoi(value)
-
-		if err != nil {
-			return "", err
-		}
-
-		expired *= res
-	}
-
-	token, err := jwt.Sign(jwt.HS256, []byte(sigKey), claims, jwt.MaxAge(time.Duration(expired)*time.Second))
-
-	return string(token), err
 }
 
 func Logout(ctx iris.Context) {
@@ -181,11 +167,4 @@ func Logout(ctx iris.Context) {
 			Msg:  "success",
 		})
 	}
-}
-
-func AddUser(email string) (int32, error) {
-	emailArr := strings.Split(email, "@")
-	userId, err := models.AddUserByCode(email, emailArr[0])
-	
-	return userId, err
 }

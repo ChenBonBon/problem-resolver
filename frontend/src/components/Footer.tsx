@@ -15,7 +15,7 @@ export default function Footer() {
   return (
     <Wrapper>
       <Link href="https://beian.miit.gov.cn/" target="_blank">
-        苏ICP备17066944号-1
+        {import.meta.env.VITE_COPYRIGHT}
       </Link>
     </Wrapper>
   );

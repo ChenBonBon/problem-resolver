@@ -1,5 +1,5 @@
 import { Flex, Tabs } from "@radix-ui/themes";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IMenu } from "../menus";
@@ -41,7 +41,22 @@ export default function Nav(props: INav) {
         ? pathname.lastIndexOf("/")
         : pathname.length
     );
-  }, []);
+  }, [pathname]);
+
+  const link = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const { key } = e.currentTarget.dataset;
+      const menu = props.menus?.find((menu) => menu.key === key);
+      if (menu?.link) {
+        navigate(menu.link);
+      }
+    },
+    [navigate, props.menus]
+  );
+
+  const login = useCallback(() => {
+    navigate("/login");
+  }, [navigate]);
 
   return (
     <Wrapper>
@@ -52,13 +67,7 @@ export default function Nav(props: INav) {
             <TabsList size="2">
               {props.menus.map((menu) => (
                 <Tabs.Trigger key={menu.key} value={menu.link ?? ""}>
-                  <LinkText
-                    onClick={() => {
-                      if (menu.link) {
-                        navigate(menu.link);
-                      }
-                    }}
-                  >
+                  <LinkText data-key={menu.key} onClick={link}>
                     {menu.label}
                   </LinkText>
                 </Tabs.Trigger>
@@ -69,13 +78,7 @@ export default function Nav(props: INav) {
         {props.avatar ? (
           <Avatar {...props.avatar} />
         ) : (
-          <Button
-            onClick={() => {
-              navigate("/login");
-            }}
-          >
-            登陆
-          </Button>
+          <Button onClick={login}>登陆</Button>
         )}
       </Flex>
     </Wrapper>

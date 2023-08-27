@@ -30,4 +30,6 @@ type Color =
   | "bronze"
   | "gray";
 
-type Status = "enabled" | "disabled";
+type Status = "Enabled" | "Disabled";
+
+type CheckedState = boolean | 'indeterminate';

@@ -1,4 +1,5 @@
 import { Link } from "@radix-ui/themes";
+import { MouseEvent, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 export interface ILogo {
@@ -9,13 +10,16 @@ export interface ILogo {
 export default function Logo(props: ILogo) {
   const navigate = useNavigate();
 
+  const onClick = useCallback(
+    (e: MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      navigate("/");
+    },
+    [navigate]
+  );
+
   return (
-    <Link
-      onClick={(e) => {
-        e.preventDefault();
-        navigate("/");
-      }}
-    >
+    <Link onClick={onClick}>
       <img src={props.src} alt={props.alt ?? "logo"} />
     </Link>
   );

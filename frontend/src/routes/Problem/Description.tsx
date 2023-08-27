@@ -21,6 +21,12 @@ export default function Description(props: IDescription) {
     return smallScreen ? "3" : "4";
   }, [smallScreen]);
 
+  const examples = useMemo(() => {
+    return props.examples.map((example, index) => (
+      <Example key={example.id} index={index} {...example} />
+    ));
+  }, [props.examples]);
+
   return (
     <ScrollArea style={{ height: "calc(100vh - 88px - 56px - 40px)" }}>
       <Box py={size}>
@@ -35,9 +41,7 @@ export default function Description(props: IDescription) {
         <Text size={smallScreen ? "2" : "3"}>{props.description}</Text>
       </Box>
       <Flex direction="column" gap="5">
-        {props.examples.map((example, index) => (
-          <Example key={example.id} index={index} {...example} />
-        ))}
+        {examples}
       </Flex>
     </ScrollArea>
   );

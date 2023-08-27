@@ -1,5 +1,5 @@
 import { Box, Table as DefaultTable, Flex } from "@radix-ui/themes";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffectOnce } from "react-use";
 import Badge, { IBadge } from "../../components/Badge";
@@ -40,8 +40,8 @@ const columns = [
 ];
 
 const statusMap: IBadge["map"] = {
-  disabled: { label: "禁用", color: "crimson" },
-  enabled: { label: "启用", color: "green" },
+  Disabled: { label: "禁用", color: "crimson" },
+  Enabled: { label: "启用", color: "green" },
 };
 
 export default function MyProblems() {
@@ -51,24 +51,45 @@ export default function MyProblems() {
 
   const { showToast } = useToast();
 
-  async function updateStatus(id: number, status: Status) {
-    const res = await updateProblem(id, {
-      status,
-    });
+  const updateStatus = useCallback(
+    async (id: number, status: Status) => {
+      const res = await updateProblem(id, {
+        status,
+      });
 
-    if (res && res.code === 0) {
-      showToast("success", "操作成功");
-      getUserProblems();
-    }
-  }
+      if (res && res.code === 0) {
+        showToast("success", "操作成功");
+        getUserProblems();
+      }
+    },
+    [showToast]
+  );
 
-  async function enable(id: number) {
-    await updateStatus(id, "enabled");
-  }
+  const enable = useCallback(
+    async (e: React.MouseEvent<HTMLDivElement>) => {
+      const { id } = e.currentTarget.dataset;
 
-  async function disable(id: number) {
-    await updateStatus(id, "disabled");
-  }
+      if (id) {
+        await updateStatus(parseInt(id, 10), "Enabled");
+      }
+    },
+    [updateStatus]
+  );
+
+  const disable = useCallback(
+    async (e: React.MouseEvent<HTMLDivElement>) => {
+      const { id } = e.currentTarget.dataset;
+
+      if (id) {
+        await updateStatus(parseInt(id, 10), "Disabled");
+      }
+    },
+    [updateStatus]
+  );
+
+  const add = useCallback(() => {
+    navigate("/problems/new");
+  }, [navigate]);
 
   const TableBody = useMemo(() => {
     return userProblems.map((problem) => (
@@ -85,21 +106,13 @@ export default function MyProblems() {
         <TableCell>
           <Flex gap="3">
             <LinkText>编辑</LinkText>
-            {problem.status === "disabled" && (
-              <LinkText
-                onClick={() => {
-                  enable(problem.id);
-                }}
-              >
+            {problem.status === "Disabled" && (
+              <LinkText data-id={problem.id} onClick={enable}>
                 启用
               </LinkText>
             )}
-            {problem.status === "enabled" && (
-              <LinkText
-                onClick={() => {
-                  disable(problem.id);
-                }}
-              >
+            {problem.status === "Enabled" && (
+              <LinkText data-id={problem.id} onClick={disable}>
                 禁用
               </LinkText>
             )}
@@ -107,7 +120,7 @@ export default function MyProblems() {
         </TableCell>
       </DefaultTable.Row>
     ));
-  }, [userProblems]);
+  }, [disable, enable, userProblems]);
 
   useEffectOnce(() => {
     getUserProblems();
@@ -116,13 +129,7 @@ export default function MyProblems() {
   return (
     <Box>
       <Flex justify="end">
-        <Button
-          onClick={() => {
-            navigate("/problems/new");
-          }}
-        >
-          新增
-        </Button>
+        <Button onClick={add}>新增</Button>
       </Flex>
       <Table columns={columns}>{TableBody}</Table>
     </Box>

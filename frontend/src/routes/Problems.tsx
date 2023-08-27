@@ -1,5 +1,5 @@
 import { Table as DefaultTable, Link } from "@radix-ui/themes";
-import { useMemo } from "react";
+import { MouseEvent, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffectOnce } from "react-use";
 import Badge, { IBadge } from "../components/Badge";
@@ -45,6 +45,16 @@ export default function Problems() {
   const navigate = useNavigate();
   const problems = useProblemsStore((state) => state.problems);
 
+  const onClick = useCallback(
+    (e: MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+
+      const { id } = e.currentTarget.dataset;
+      navigate(`/problems/${id}`);
+    },
+    [navigate]
+  );
+
   const TableBody = useMemo(() => {
     return problems.map((problem) => (
       <DefaultTable.Row key={problem.id}>
@@ -52,12 +62,7 @@ export default function Problems() {
           <Badge map={statusMap} value={problem.status} />
         </DefaultTable.RowHeaderCell>
         <TableCell maxwidth={640}>
-          <Link
-            onClick={(e) => {
-              e.preventDefault();
-              navigate(`/problems/${problem.id}`);
-            }}
-          >
+          <Link data-id={problem.id} onClick={onClick}>
             {problem.name}
           </Link>
         </TableCell>
@@ -69,10 +74,10 @@ export default function Problems() {
         </TableCell>
       </DefaultTable.Row>
     ));
-  }, [navigate, problems]);
+  }, [onClick, problems]);
 
   useEffectOnce(() => {
-    getProblems("enabled");
+    getProblems("Enabled");
   });
 
   return <Table columns={columns}>{TableBody}</Table>;

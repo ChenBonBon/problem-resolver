@@ -30,7 +30,7 @@ func AddCode(email string, code string) error {
 func GetUserByEmail(email string) (models.User, error) {
 	var user models.User
 
-	result := db.DB.Select("id").Where("email = ?", email).First(&user)
+	result := db.DB.Select("id, name").Where("email = ?", email).First(&user)
 
 	return user, result.Error
 }
@@ -68,7 +68,7 @@ func UpdateCodeStatus(email string, code string) error {
 	return result.Error
 }
 
-func AddUserByCode(email string, username string) (int32, error) {
+func AddUserByCode(email string, username string) (models.User, error) {
 	user := models.User{
 		Email:  email,
 		Name:   username,
@@ -77,7 +77,7 @@ func AddUserByCode(email string, username string) (int32, error) {
 
 	result := db.DB.Create(&user)
 
-	return user.ID, result.Error
+	return user, result.Error
 }
 
 func AddUserByPassword(username string, password string) (int64, error) {

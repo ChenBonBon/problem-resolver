@@ -89,3 +89,9 @@
 - 将所有 varchar 类型默认值迁移至 GORM 默认值
 - GORM 日志移除查询数据为空报错
 - Token 校验失败自动退出登录
+
+## [0.0.6] - 2023-08-27
+
+### Changed
+
+- 修复部分 eslint warning，将 onClick、onChange 等事件的回调函数从箭头函数改为 useCallback
