@@ -21,7 +21,7 @@ export default function BadgeGroup(props: IBadgeGroup) {
 
   const onClick = useCallback(
     (e: MouseEvent<HTMLSpanElement>) => {
-      const { idStr } = e.currentTarget.dataset;
+      const { id: idStr } = e.currentTarget.dataset;
       if (idStr) {
         const id = parseInt(idStr, 10);
         const index = selected.indexOf(id);

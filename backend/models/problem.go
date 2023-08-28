@@ -111,9 +111,10 @@ func AddProblem(name string, description string, answer string, difficulty Diffi
 		Difficulty:  string(difficulty),
 		Types:       types,
 		CreatedBy:   createdBy,
+		UpdatedBy:   createdBy,
 	}
 
-	result := db.DB.Create(&problem)
+	result := db.DB.Debug().Create(&problem)
 
 	if result.Error != nil {
 		return result.Error
@@ -123,6 +124,7 @@ func AddProblem(name string, description string, answer string, difficulty Diffi
 		ProblemID: problem.ID,
 		Answer:    answer,
 		CreatedBy: createdBy,
+		UpdatedBy:   createdBy,
 	}
 
 	result = db.DB.Create(&problemAnswer)

@@ -103,3 +103,8 @@
 
 - 修复部分 eslint warning，将 onClick、onChange 等事件的回调函数从箭头函数改为 useCallback
 - 完善账号密码登录功能
+
+### Fixed
+
+- 修复 BadgeGroup 无法点击的问题
+- 修复 UpdatedBy 为空时外键报错
