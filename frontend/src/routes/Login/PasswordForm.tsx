@@ -52,8 +52,11 @@ export default function PasswordForm() {
       togglePasswordError(false);
     }
 
-    await loginWithPassword(form.username, form.password);
-    redirect();
+    const res = await loginWithPassword(form.username, form.password);
+
+    if (res && res.code === 0) {
+      redirect();
+    }
   }, [
     form.password,
     form.username,
@@ -77,7 +80,11 @@ export default function PasswordForm() {
         errorText="请输入密码"
         status={passwordError ? "error" : "success"}
       >
-        <TextField.Input placeholder="输入密码" onChange={passwordChange} />
+        <TextField.Input
+          placeholder="输入密码"
+          onChange={passwordChange}
+          type="password"
+        />
       </FormItem>
       <Button onClick={login}>登录</Button>
     </>

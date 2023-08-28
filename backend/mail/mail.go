@@ -2,11 +2,22 @@ package mail
 
 import (
 	"log/slog"
+	"net/mail"
 	"net/smtp"
 	"os"
 
 	"github.com/jordan-wright/email"
 )
+
+func ValidateMail(email string) (string, error) {
+	addr, err := mail.ParseAddress(email)
+
+	if err != nil {
+		return "", err
+	}
+
+	return addr.Address, err
+}
 
 func SendMail(to string, subject string, html string) {
 	senderName := os.Getenv("EMAIL_SENDER_NAME")

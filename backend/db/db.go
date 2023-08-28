@@ -17,8 +17,9 @@ func ConnectDB() {
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
 	dbName := os.Getenv("DB_NAME")
+	dbPort := os.Getenv("DB_PORT")
 
-	dsn := "host=localhost user=" + dbUser + " password=" + dbPass + " dbname=" + dbName + " port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := "host=localhost user=" + dbUser + " password=" + dbPass + " dbname=" + dbName + " port=" + dbPort + " sslmode=disable TimeZone=Asia/Shanghai"
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{

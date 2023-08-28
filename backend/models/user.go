@@ -3,6 +3,7 @@ package models
 import (
 	"backend/db"
 	"backend/db/models"
+	"backend/utils"
 	"time"
 )
 
@@ -14,6 +15,11 @@ type LoginWithPassword struct {
 type LoginWithCode struct {
 	Email string `json:"email" validate:"required,email"`
 	Code  string `json:"code" validate:"required"`
+}
+
+type ResetPassword struct {
+	Password string `json:"password"`
+	Stoken    string `json:"stoken"`
 }
 
 func AddCode(email string, code string) error {
@@ -38,7 +44,7 @@ func GetUserByEmail(email string) (models.User, error) {
 func GetUserByPassword(username string, password string) (models.User, error) {
 	var user models.User
 
-	result := db.DB.Select("id").Where("name = ? AND password = ?", username, password).First(&user)
+	result := db.DB.Select("id, name").Where("name = ? AND password = ?", username, password).First(&user)
 
 	return user, result.Error
 }
@@ -98,4 +104,30 @@ func GetUserById(id int32) (models.User, error) {
 	result := db.DB.First(&user, id)
 
 	return user, result.Error
+}
+
+func GetUserByName(name string) (models.User, error) {
+	user := models.User{}
+
+	result := db.DB.Where("name = ?", name).First(&user)
+
+	return user, result.Error
+}
+
+
+func UpdateUserPassword(email string, password string) error {
+	var user models.User
+
+	result := db.DB.Where("email = ?", email).First(&user)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	user.Password = utils.GetMd5Str(password)
+	user.UpdatedAt = time.Now()
+
+	result = db.DB.Save(&user)
+
+	return result.Error
 }

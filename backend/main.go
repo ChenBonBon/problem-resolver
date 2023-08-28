@@ -20,6 +20,7 @@ func main() {
 	app.UseRouter(ac.Handler)
 
 	db.ConnectDB()
+	db.ConnectRedis()
 
 	sigKey := os.Getenv("TOKEN_SIG_KEY")
 
@@ -36,7 +37,7 @@ func main() {
 	})
 
 	app.Get("/user", routes.GetUser).Use(verifyMiddleware)
-	app.Post("/logout", routes.Logout).Use(verifyMiddleware)
+	app.Delete("/logout", routes.Logout).Use(verifyMiddleware)
 
 	app.Get("/code", routes.GetCode)
 
@@ -44,6 +45,8 @@ func main() {
 	{
 		login.Post("/code", routes.LoginWithCode)
 		login.Post("/password", routes.LoginWithPassword)
+		login.Get("/forget", routes.ForgetPassword)
+		login.Put("/reset", routes.ResetPassword)
 	}
 
 	problem := app.Party("/problems")

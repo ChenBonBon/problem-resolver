@@ -85,8 +85,11 @@ export default function CodeForm() {
       toggleCodeError(false);
     }
 
-    await loginWithCode(form.email, form.code);
-    redirect();
+    const res = await loginWithCode(form.email, form.code);
+
+    if (res && res.code === 0) {
+      redirect();
+    }
   }, [
     form.code,
     form.email,

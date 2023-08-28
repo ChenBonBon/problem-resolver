@@ -1,53 +1,61 @@
 import { Checkbox, Flex, Link, Text } from "@radix-ui/themes";
 import { MouseEvent, useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useEffectOnce } from "react-use";
-import { styled } from "styled-components";
-import logo from "../../assets/logo.svg";
-import Logo from "../../components/Logo";
-import { AppName } from "../../constants";
+
+import LoginLayout from "../../layouts/LoginLayout";
 import useLoginStore from "../../stores/login";
 import CodeForm from "./CodeForm";
+import ForgetPasswordForm from "./ForgetPasswordForm";
 import PasswordForm from "./PasswordForm";
 
-const Wrapper = styled.div`
-  margin-top: 15vh;
-  background-color: white;
-  padding: 24px 32px;
-  width: 350px;
-`;
-
 export default function Login() {
-  const navigate = useNavigate();
   const checked = useLoginStore((state) => state.checked);
   const setChecked = useLoginStore((state) => state.setChecked);
   const setSended = useLoginStore((state) => state.setSended);
-  const [loginType, setLoginType] = useState<"code" | "password">("code");
+  const [loginType, setLoginType] = useState<"code" | "password" | "forget">(
+    "code"
+  );
 
   const LoginForm = useMemo(() => {
     if (loginType === "code") {
       return <CodeForm />;
     } else if (loginType === "password") {
       return <PasswordForm />;
+    } else if (loginType === "forget") {
+      return <ForgetPasswordForm />;
     }
   }, [loginType]);
 
-  const passwordLogin = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    setLoginType("password");
-  }, []);
+  const changeLoginType = useCallback(
+    (
+      e: MouseEvent<HTMLAnchorElement>,
+      type: "code" | "password" | "forget"
+    ) => {
+      e.preventDefault();
+      setLoginType(type);
+    },
+    []
+  );
 
-  const codeLogin = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    setLoginType("code");
-  }, []);
+  const passwordLogin = useCallback(
+    (e: MouseEvent<HTMLAnchorElement>) => {
+      changeLoginType(e, "password");
+    },
+    [changeLoginType]
+  );
+
+  const codeLogin = useCallback(
+    (e: MouseEvent<HTMLAnchorElement>) => {
+      changeLoginType(e, "code");
+    },
+    [changeLoginType]
+  );
 
   const forgetPassword = useCallback(
     (e: MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault();
-      navigate("/forget-password");
+      changeLoginType(e, "forget");
     },
-    [navigate]
+    [changeLoginType]
   );
 
   const Controls = useMemo(() => {
@@ -88,21 +96,18 @@ export default function Login() {
   });
 
   return (
-    <Flex justify="center" direction="column" align="center">
-      <Wrapper>
-        <Logo src={logo} alt={AppName} />
-        <Flex direction="column" gap="5" pt="3">
-          {LoginForm}
-          {Controls}
-          <Flex gap="3" align="center">
-            <Checkbox checked={checked} onCheckedChange={onCheckedChange} />
-            <Text size="1">
-              注册或登录即代表您同意<Link>《用户协议》</Link>和
-              <Link>《隐私政策》</Link>
-            </Text>
-          </Flex>
+    <LoginLayout>
+      {LoginForm}
+      {Controls}
+      {loginType !== "forget" && (
+        <Flex gap="3" align="center">
+          <Checkbox checked={checked} onCheckedChange={onCheckedChange} />
+          <Text size="1">
+            注册或登录即代表您同意<Link>《用户协议》</Link>和
+            <Link>《隐私政策》</Link>
+          </Text>
         </Flex>
-      </Wrapper>
-    </Flex>
+      )}
+    </LoginLayout>
   );
 }

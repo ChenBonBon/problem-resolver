@@ -14,6 +14,7 @@ interface IAuthRoute {
 
 const Home = lazy(() => import("./routes/Home"));
 const Login = lazy(() => import("./routes/Login/Login"));
+const ResetPassword = lazy(() => import("./routes/Login/ResetPassword"));
 const Learn = lazy(() => import("./routes/Learn"));
 const Problems = lazy(() => import("./routes/Problems"));
 const Problem = lazy(() => import("./routes/Problem"));
@@ -41,6 +42,11 @@ const routes: IRoute[] = [
     key: "login",
     path: "/login",
     element: <Login />,
+  },
+  {
+    key: "resetPassword",
+    path: "/reset-password",
+    element: <ResetPassword />,
   },
   {
     key: "learn",

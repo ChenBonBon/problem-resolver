@@ -92,6 +92,14 @@
 
 ## [0.0.6] - 2023-08-27
 
+### Added
+
+- 添加 Redis 用于管理短链接
+- 新增忘记密码
+- 新增重置密码
+- 添加生成短链接功能
+
 ### Changed
 
 - 修复部分 eslint warning，将 onClick、onChange 等事件的回调函数从箭头函数改为 useCallback
+- 完善账号密码登录功能

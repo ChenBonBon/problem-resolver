@@ -15,6 +15,8 @@ import useLogin from "./hooks/useLogin.ts";
 import useToast from "./hooks/useToast.ts";
 import menus, { avatarMenus } from "./menus";
 import routes from "./routes";
+import useUserStore from "./stores/user.ts";
+import { getUser } from "./requests/user.ts";
 
 const Wrapper = styled(Flex)`
   position: relative;
@@ -47,7 +49,8 @@ function App() {
   const { smallScreen } = useBreakpoint();
   const { loading } = useLoading();
   const { type, visible, description, setVisible } = useToast();
-  const { logined, username, getUser } = useLogin();
+  const { logined } = useLogin();
+  const username = useUserStore((state) => state.username);
 
   useEffectOnce(() => {
     getUser();

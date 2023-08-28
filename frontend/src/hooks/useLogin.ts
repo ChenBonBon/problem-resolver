@@ -1,5 +1,12 @@
 import request from "../requests";
+import {
+  forgetPassword,
+  loginWithEmailAndCode,
+  loginWithUsernameAndPassword,
+  sendCode,
+} from "../requests/login";
 import useLoginStore from "../stores/login";
+import useUserStore from "../stores/user";
 import useToast from "./useToast";
 
 export default function useLogin() {
@@ -8,8 +15,7 @@ export default function useLogin() {
   const logined = useLoginStore((state) => state.logined);
   const setLogined = useLoginStore((state) => state.setLogined);
   const checked = useLoginStore((state) => state.checked);
-  const username = useLoginStore((state) => state.username);
-  const setUsername = useLoginStore((state) => state.setUsername);
+  const setUsername = useUserStore((state) => state.setUsername);
 
   const { showToast } = useToast();
 
@@ -21,7 +27,7 @@ export default function useLogin() {
 
     setSended(true);
 
-    const res = await request(`/api/code?email=${email}`, "GET");
+    const res = await sendCode(email);
 
     if (res && res.code === 0) {
       showToast("success", "验证码已发送");
@@ -34,16 +40,16 @@ export default function useLogin() {
       return;
     }
 
-    const res = await request("/api/login/password", "POST", {
-      username,
-      password,
-    });
+    const res = await loginWithUsernameAndPassword(username, password);
+
     if (res && res.code === 0) {
       const { username, token } = res.data;
       setLogined(true);
       window.localStorage.setItem("token", token);
       setUsername(username);
     }
+
+    return res;
   }
 
   async function loginWithCode(email: string, code: string) {
@@ -52,49 +58,42 @@ export default function useLogin() {
       return;
     }
 
-    const res = await request("/api/login/code", "POST", { email, code });
+    const res = await loginWithEmailAndCode(email, code);
+
     if (res && res.code === 0) {
       const { username, token } = res.data;
       setLogined(true);
       window.localStorage.setItem("token", token);
       setUsername(username);
     }
+
+    return res;
   }
 
   async function logout() {
-    const res = await request("/api/logout", "POST");
+    const res = await request("/api/logout", "DELETE");
+
     if (res && res.code === 0) {
       setLogined(false);
       window.localStorage.removeItem("token");
     }
   }
 
-  async function getUser() {
-    if (window.localStorage.getItem("token")) {
-      const res = await request("/api/user", "GET");
+  async function forget(username: string) {
+    const res = await forgetPassword(username);
 
-      if (res) {
-        const { username, token } = res.data;
-        setLogined(true);
-        window.localStorage.setItem("token", token);
-        setUsername(username);
-      } else {
-        setLogined(false);
-        window.localStorage.removeItem("token");
-      }
-    } else {
-      setLogined(false);
+    if (res) {
+      showToast("success", "密码重置成功，请查看邮箱");
     }
   }
 
   return {
     sended,
     logined,
-    username,
-    getUser,
     getCode,
     loginWithPassword,
     loginWithCode,
     logout,
+    forget,
   };
 }
