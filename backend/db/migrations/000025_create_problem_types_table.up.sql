@@ -1,2 +1,0 @@
-TRUNCATE TABLE problem_types RESTART IDENTITY
-INSERT INTO problem_types (name, status, created_by) VALUES ('前端', 'Enabled', 1), ('后端', 'Enabled', 1), ('算法', 'Enabled', 1), ('数据库', 'Enabled', 1), ('其他', 'Enabled', 1);

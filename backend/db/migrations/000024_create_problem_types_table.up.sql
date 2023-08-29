@@ -1,1 +1,0 @@
-ALTER TABLE problem_types ALTER COLUMN status DROP DEFAULT;

@@ -108,3 +108,10 @@
 
 - 修复 BadgeGroup 无法点击的问题
 - 修复 UpdatedBy 为空时外键报错
+
+## [0.0.7] - 2023-08-29
+
+### Changed
+
+- 根据 golang project layout 规范重构目录结构
+- 重新设计部分表结构

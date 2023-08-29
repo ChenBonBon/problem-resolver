@@ -1,1 +1,0 @@
-ALTER TABLE problem_answers ALTER COLUMN status SET DEFAULT 'enabled';

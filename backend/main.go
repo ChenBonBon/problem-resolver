@@ -1,9 +1,14 @@
 package main
 
 import (
-	"backend/db"
-	"backend/routes"
-	"backend/utils"
+	"backend/internal/db"
+	"backend/internal/login"
+	"backend/internal/problem"
+	"backend/internal/problem_submit"
+	"backend/internal/problem_type"
+	"backend/internal/user"
+	"backend/internal/user_code"
+	"backend/pkg/logger"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -12,14 +17,14 @@ import (
 )
 
 func main() {
-	ac := makeAccessLog()
+	ac := logger.MakeAccessLog()
 	defer ac.Close()
 
 	app := iris.New()
 
 	app.UseRouter(ac.Handler)
 
-	db.ConnectDB()
+	db.ConnectPostgres()
 	db.ConnectRedis()
 
 	sigKey := os.Getenv("TOKEN_SIG_KEY")
@@ -27,7 +32,7 @@ func main() {
 	verifier := jwt.NewVerifier(jwt.HS256, sigKey)
 	verifier.WithDefaultBlocklist()
 	verifyMiddleware := verifier.Verify(func() interface{} {
-		return new(utils.UserClaims)
+		return new(user.UserClaims)
 	})
 
 	app.OnErrorCode(iris.StatusUnauthorized, func(ctx iris.Context) {
@@ -36,32 +41,33 @@ func main() {
 		ctx.StopWithProblem(iris.StatusUnauthorized, iris.NewProblem().Title("Token验证失败").Detail(err.Error()).Type("Unauthorized Problem"))
 	})
 
-	app.Get("/user", routes.GetUser).Use(verifyMiddleware)
-	app.Delete("/logout", routes.Logout).Use(verifyMiddleware)
+	app.Get("/user", user.GetUser).Use(verifyMiddleware)
+	app.Delete("/logout", login.Logout).Use(verifyMiddleware)
 
-	app.Get("/code", routes.GetCode)
+	app.Get("/code", user_code.SendCode)
 
-	login := app.Party("/login")
+	loginParty := app.Party("/login")
 	{
-		login.Post("/code", routes.LoginWithCode)
-		login.Post("/password", routes.LoginWithPassword)
-		login.Get("/forget", routes.ForgetPassword)
-		login.Put("/reset", routes.ResetPassword)
+		loginParty.Post("/code", login.LoginWithCode)
+		loginParty.Post("/password", login.LoginWithPassword)
 	}
 
-	problem := app.Party("/problems")
+	problemParty := app.Party("/problems")
 	{
-		problem.Get("", routes.GetProblems)
-		problem.Get("/{id}", routes.GetProblem)
-		problem.Get("/types", routes.GetProblemTypes)
+		problemParty.Get("", problem.GetProblems)
+		problemParty.Get("/{id}", problem.GetProblem)
+		problemParty.Get("/types", problem_type.GetProblemTypes)
+		problemParty.Post("/{id}", problem_submit.SubmitProblem)
 	}
 
-	user := app.Party("/users")
-	user.Use(verifyMiddleware)
+	userParty := app.Party("/users")
+	userParty.Use(verifyMiddleware)
 	{
-		user.Get("/problems", routes.GetProblemsByUserId)
-		user.Post("/problems", routes.AddProblem)
-		user.Put("/problems/:id", routes.UpdateProblem)
+		userParty.Get("/forget", user.ForgetPassword)
+		userParty.Put("/reset", user.ResetPassword)
+		userParty.Get("/problems", problem.GetProblemsByUserId)
+		userParty.Post("/problems", problem.AddProblem)
+		userParty.Put("/problems/:id", problem.UpdateProblem)
 	}
 
 	app.Listen(":8080")

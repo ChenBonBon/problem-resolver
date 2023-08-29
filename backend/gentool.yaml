@@ -1,5 +1,0 @@
-version: "0.1"
-database:
-  dsn: "host=localhost user=postgres password=chenroc1001 dbname=problem_resolver port=5432 sslmode=disable TimeZone=Asia/Shanghai"
-  db: "postgres"
-  tables: "users,user_codes,problems,problem_types,problem_answers"

@@ -77,7 +77,7 @@ export default function Problems() {
   }, [onClick, problems]);
 
   useEffectOnce(() => {
-    getProblems("Enabled");
+    getProblems("enabled");
   });
 
   return <Table columns={columns}>{TableBody}</Table>;

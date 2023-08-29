@@ -1,36 +1,45 @@
 #!/bin/bash
 
+db_name=""
 username=""
 password=""
-db_name=""
+db_port=""
 
 if [ "$1" ]
 then
-    username="$1"
-else
-    echo "username 不能为空"
-    exit 0
-fi
-
-if [ "$2" ]
-then
-    password="$2"
-else
-    echo "password 不能为空"
-    exit 0
-fi
-  
-if [ "$3" ]
-then
-    db_name="$3"
+    db_name="$1"
 else
     echo "db_name 不能为空"
     exit 0
 fi
 
-if [ "$4" ]
+if [ "$2" ]
 then
-    migrate -database "postgres://$username:$password@localhost:5432/$db_name?sslmode=disable" -path db/migrations force "$4"
+    username="$2"
+else
+    echo "username 不能为空"
+    exit 0
+fi
+  
+if [ "$3" ]
+then
+    password="$3"
+else
+    echo "password 不能为空"
+    exit 0
 fi
 
-migrate -database "postgres://$username:$password@localhost:5432/$db_name?sslmode=disable" -path db/migrations up
+if [ "$4" ]
+then
+    db_port="$4"
+else
+    echo "db_port 不能为空"
+    exit 0
+fi
+
+if [ "$5" ]
+then
+    migrate -database "postgres://$username:$password@localhost:$db_port/$db_name?sslmode=disable" -path ./build/migrations force "$5"
+fi
+
+migrate -database "postgres://$username:$password@localhost:$db_port/$db_name?sslmode=disable" -path ./build/migrations up

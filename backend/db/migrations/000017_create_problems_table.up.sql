@@ -1,1 +1,0 @@
-ALTER TABLE problems ALTER COLUMN types TYPE integer[] USING types::integer[];

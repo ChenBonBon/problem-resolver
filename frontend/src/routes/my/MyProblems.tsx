@@ -14,7 +14,7 @@ import { date } from "../../utils";
 
 const columns = [
   {
-    key: "name",
+    key: "title",
     label: "题目",
   },
   {
@@ -40,8 +40,8 @@ const columns = [
 ];
 
 const statusMap: IBadge["map"] = {
-  Disabled: { label: "禁用", color: "crimson" },
-  Enabled: { label: "启用", color: "green" },
+  disabled: { label: "禁用", color: "crimson" },
+  enabled: { label: "启用", color: "green" },
 };
 
 export default function MyProblems() {
@@ -70,7 +70,7 @@ export default function MyProblems() {
       const { id } = e.currentTarget.dataset;
 
       if (id) {
-        await updateStatus(parseInt(id, 10), "Enabled");
+        await updateStatus(parseInt(id, 10), "enabled");
       }
     },
     [updateStatus]
@@ -81,7 +81,7 @@ export default function MyProblems() {
       const { id } = e.currentTarget.dataset;
 
       if (id) {
-        await updateStatus(parseInt(id, 10), "Disabled");
+        await updateStatus(parseInt(id, 10), "disabled");
       }
     },
     [updateStatus]
@@ -94,7 +94,7 @@ export default function MyProblems() {
   const TableBody = useMemo(() => {
     return userProblems.map((problem) => (
       <DefaultTable.Row key={problem.id}>
-        <TableRowHeaderCell maxwidth={640}>{problem.name}</TableRowHeaderCell>
+        <TableRowHeaderCell maxwidth={640}>{problem.title}</TableRowHeaderCell>
         <TableCell>{problem.types.join(" ")}</TableCell>
         <TableCell>
           <Badge map={difficultyMap} value={problem.difficulty} />
@@ -106,12 +106,12 @@ export default function MyProblems() {
         <TableCell>
           <Flex gap="3">
             <LinkText>编辑</LinkText>
-            {problem.status === "Disabled" && (
+            {problem.status === "disabled" && (
               <LinkText data-id={problem.id} onClick={enable}>
                 启用
               </LinkText>
             )}
-            {problem.status === "Enabled" && (
+            {problem.status === "enabled" && (
               <LinkText data-id={problem.id} onClick={disable}>
                 禁用
               </LinkText>

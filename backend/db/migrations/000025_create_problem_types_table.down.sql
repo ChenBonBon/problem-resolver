@@ -1,1 +1,0 @@
-DELETE FROM TABLE problem_types WHERE name IN ("前端", "后端", "算法", "数据库", "其他");

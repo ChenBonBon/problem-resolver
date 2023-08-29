@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export interface IProblemBase {
   id: number;
-  name: string;
+  title: string;
   types: string[];
   difficulty: "easy" | "medium" | "hard";
 }
@@ -21,7 +21,7 @@ export interface IProblem extends IProblemBase {
 }
 
 export interface ICreateProblemForm {
-  name: string;
+  title: string;
   description?: string;
   answer?: string;
   difficulty: string;
@@ -29,7 +29,7 @@ export interface ICreateProblemForm {
 }
 
 export interface IUpdateProblemForm {
-  name?: string;
+  title?: string;
   description?: string;
   answer?: string;
   difficulty?: string;

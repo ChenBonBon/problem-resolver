@@ -22,7 +22,7 @@ export default function CreateProblem() {
 
   const { smallScreen } = useBreakpoint();
   const [form, setForm] = useState<ICreateProblemForm>({
-    name: "",
+    title: "",
     description: "",
     answer: "",
     difficulty: "",
@@ -51,7 +51,7 @@ export default function CreateProblem() {
   }, []);
 
   async function submit() {
-    if (form.name.length === 0) {
+    if (form.title.length === 0) {
       toggleNameError(true);
       return;
     } else {
@@ -72,9 +72,9 @@ export default function CreateProblem() {
     }
   }
 
-  const nameChange = useCallback(
+  const titleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) =>
-      setForm({ ...form, name: e.target.value }),
+      setForm({ ...form, title: e.target.value }),
     [form]
   );
 
@@ -109,7 +109,7 @@ export default function CreateProblem() {
   }, [navigate]);
 
   useEffectOnce(() => {
-    getProblemTypes("Enabled");
+    getProblemTypes("enabled");
   });
 
   return (
@@ -121,7 +121,7 @@ export default function CreateProblem() {
           errorText="请输入问题"
           status={nameError ? "error" : "success"}
         >
-          <TextField.Input placeholder="请输入问题" onChange={nameChange} />
+          <TextField.Input placeholder="请输入问题" onChange={titleChange} />
         </FormItem>
         <FormItem label="描述">
           <TextArea placeholder="请输入问题描述" onChange={descriptionChange} />

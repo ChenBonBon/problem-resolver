@@ -1,5 +1,8 @@
 import request from ".";
-import useProblemsStore, { ICreateProblemForm, IUpdateProblemForm } from "../stores/problems";
+import useProblemsStore, {
+  ICreateProblemForm,
+  IUpdateProblemForm,
+} from "../stores/problems";
 
 export async function getProblems(status?: Status) {
   const { setProblems } = useProblemsStore.getState();
@@ -44,10 +47,7 @@ export async function getUserProblems() {
   }
 }
 
-export async function updateProblem(
-  id: number,
-  params: IUpdateProblemForm
-) {
+export async function updateProblem(id: number, params: IUpdateProblemForm) {
   return await request(`/api/users/problems/${id}`, "PUT", params);
 }
 
@@ -57,5 +57,14 @@ export async function getProblem(id: number) {
 
   if (res && res.code === 0) {
     setProblem(res.data);
+  }
+}
+
+export async function submitProblem(id: number, content: string) {
+  const { setAnswer } = useProblemsStore.getState();
+  const res = await request(`/api/problems/${id}`, "POST", { content });
+
+  if (res && res.code === 0) {
+    setAnswer(res.data);
   }
 }

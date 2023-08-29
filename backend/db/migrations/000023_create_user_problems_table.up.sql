@@ -1,1 +1,0 @@
-ALTER TABLE user_problems ALTER COLUMN status DROP DEFAULT;

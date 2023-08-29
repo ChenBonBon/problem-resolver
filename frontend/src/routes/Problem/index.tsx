@@ -1,11 +1,12 @@
 import { Flex, Grid, Heading, Tabs } from "@radix-ui/themes";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useEffectOnce, useToggle } from "react-use";
+import { useEffectOnce } from "react-use";
 import Button from "../../components/Button";
 import LinkText from "../../components/LinkText";
 import useBreakpoint from "../../hooks/useBreakpoint";
-import { getProblem } from "../../requests/problems";
+import { getProblem, submitProblem } from "../../requests/problems";
+import useLoadingStore from "../../stores/loading";
 import useProblemsStore from "../../stores/problems";
 import { addNumberUnit } from "../../utils";
 import Answer from "./Answer";
@@ -13,30 +14,27 @@ import Description from "./Description";
 import Editor from "./Editor";
 
 export default function Problem() {
-  const { id } = useParams();
+  const { id: idStr } = useParams();
+  let id = 0;
+
+  if (idStr) {
+    id = parseInt(idStr, 10);
+  }
 
   const { smallScreen } = useBreakpoint();
   const problem = useProblemsStore((state) => state.problem);
   const answer = useProblemsStore((state) => state.answer);
+  const loading = useLoadingStore((state) => state.loading);
 
-  const [submitting, toggleSubmitting] = useToggle(false);
   const [value, setValue] = useState("");
 
   useEffectOnce(() => {
-    if (id) {
-      getProblem(parseInt(id, 10));
-    }
+    getProblem(id);
   });
 
   const submit = async () => {
-    toggleSubmitting(true);
     try {
-      const res = await fetch("/api/problems", {
-        method: "POST",
-        body: JSON.stringify({ name: value }),
-      });
-
-      console.log(res);
+      await submitProblem(id, value);
     } catch (error) {
       console.error(error);
     }
@@ -76,14 +74,14 @@ export default function Problem() {
         <Flex py="3" justify="end" gap="3">
           <Button
             onClick={reset}
-            disabled={value.length === 0 || submitting}
+            disabled={value.length === 0 || loading}
             variant="soft"
           >
             重做
           </Button>
           <Button
             onClick={submit}
-            disabled={value.length === 0 || submitting}
+            disabled={value.length === 0 || loading}
             color="green"
           >
             提交
