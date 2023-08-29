@@ -63,7 +63,7 @@ export default function Problems() {
         </DefaultTable.RowHeaderCell>
         <TableCell maxwidth={640}>
           <Link data-id={problem.id} onClick={onClick}>
-            {problem.name}
+            {problem.title}
           </Link>
         </TableCell>
         <TableCell>{problem.types}</TableCell>
