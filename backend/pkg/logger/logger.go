@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"backend/pkg/fs"
+	"log/slog"
 	"os"
 	"time"
 
@@ -10,6 +12,14 @@ import (
 const logDirPath = "logs"
 
 func MakeAccessLog() *accesslog.AccessLog {
+	if !fs.Exist(logDirPath) {
+		err := fs.CreateDir(logDirPath)
+
+		if err != nil {
+			slog.Error("创建日志目录失败", err.Error())
+			panic(err)
+		}
+	}
 	now := time.Now()
 	filename := now.Format("2006-01-02")
 	ac := accesslog.File(logDirPath + "/" + filename + ".log")
