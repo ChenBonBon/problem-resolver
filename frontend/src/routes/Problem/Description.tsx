@@ -8,7 +8,7 @@ import Example from "./Example";
 
 interface IDescription {
   id: number;
-  name: string;
+  title: string;
   difficulty: IProblemBase["difficulty"];
   description: string;
   examples: IExample[];
@@ -31,7 +31,7 @@ export default function Description(props: IDescription) {
     <ScrollArea style={{ height: "calc(100vh - 88px - 56px - 40px)" }}>
       <Box py={size}>
         <Heading as="h2" size={size}>
-          {props.id}.{props.name}
+          {props.id}.{props.title}
         </Heading>
       </Box>
       <div>
