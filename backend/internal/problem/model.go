@@ -172,7 +172,7 @@ func getProblemById(id int32) (ProblemItem, error) {
 
 	subQuery := db.Postgres.Table("problems as p, problem_types as pt").Select("ARRAY [pt.name] as types").Where("pt.id = ANY (p.types)")
 
-	result := db.Postgres.Table("(?) as sub, problems as p", subQuery).Select("p.id", "p.title", "p.description", "sub.types", "difficulty").Where("p.id = ?", id).Find(&problem)
+	result := db.Postgres.Table("(?) as sub, problems as p", subQuery).Select("p.id", "p.title", "p.description", "p.answer", "sub.types", "difficulty").Where("p.id = ?", id).Find(&problem)
 
 	if result.Error != nil {
 		return problem, result.Error

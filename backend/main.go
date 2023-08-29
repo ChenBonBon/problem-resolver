@@ -57,7 +57,7 @@ func main() {
 		problemParty.Get("", problem.GetProblems)
 		problemParty.Get("/{id}", problem.GetProblem)
 		problemParty.Get("/types", problem_type.GetProblemTypes)
-		problemParty.Post("/{id}", problem_submit.SubmitProblem)
+		problemParty.Post("/{id}", problem_submit.SubmitProblem).Use(verifyMiddleware)
 	}
 
 	userParty := app.Party("/users")

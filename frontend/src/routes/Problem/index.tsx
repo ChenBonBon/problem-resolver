@@ -1,7 +1,7 @@
 import { Flex, Grid, Heading, Tabs } from "@radix-ui/themes";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useEffectOnce } from "react-use";
+import { useEffectOnce, useToggle } from "react-use";
 import Button from "../../components/Button";
 import LinkText from "../../components/LinkText";
 import useBreakpoint from "../../hooks/useBreakpoint";
@@ -27,16 +27,17 @@ export default function Problem() {
     const loading = useLoadingStore((state) => state.loading);
 
     const [value, setValue] = useState("");
+    const [submitted, toggleSubmitted] = useToggle(false);
 
     useEffectOnce(() => {
         getProblem(id);
     });
 
     const submit = async () => {
-        try {
-            await submitProblem(id, value);
-        } catch (error) {
-            console.error(error);
+        const res = await submitProblem(id, value);
+
+        if (res && res.code === 0) {
+            toggleSubmitted();
         }
     };
 
@@ -74,9 +75,7 @@ export default function Problem() {
                     答题区域
                 </Heading>
                 <Editor value={value} onChange={setValue} />
-                {problem && answer && (
-                    <Answer title={problem.title} {...answer} />
-                )}
+                {answer && submitted && <Answer answer={answer} />}
                 <Flex py="3" justify="end" gap="3">
                     <Button
                         onClick={reset}
