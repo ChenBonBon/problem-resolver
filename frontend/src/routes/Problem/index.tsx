@@ -75,7 +75,7 @@ export default function Problem() {
                     答题区域
                 </Heading>
                 <Editor value={value} onChange={setValue} />
-                {answer && submitted && <Answer answer={answer} />}
+                {submitted && <Answer answer={answer} />}
                 <Flex py="3" justify="end" gap="3">
                     <Button
                         onClick={reset}

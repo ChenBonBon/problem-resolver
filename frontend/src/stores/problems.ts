@@ -50,7 +50,7 @@ export interface IExample {
 }
 
 export interface IAnswer {
-    answer: string;
+    answer: string | null;
 }
 
 export interface IProblemType {

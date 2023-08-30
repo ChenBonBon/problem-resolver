@@ -10,6 +10,10 @@ export default function Answer(props: IAnswer) {
         return smallScreen ? "3" : "4";
     }, [smallScreen]);
 
+    if (props.answer === null) {
+        return <Text size={smallScreen ? "2" : "3"}>暂无答案</Text>;
+    }
+
     return (
         <ScrollArea>
             <Box py={size}>
